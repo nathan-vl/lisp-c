@@ -58,7 +58,10 @@ Token parseString(LexerStatus *status)
     char *start = status->source;
     while (status->source[0] != '\"')
     {
-        // TODO: Add error if string is unterminated
+        if (status->source[0] == '\0') {
+            printf("Error. Unterminated string\n");
+            exit(-1);
+        }
         status->source++;
     }
 
