@@ -80,6 +80,7 @@ Token parseNumber(LexerStatus *status)
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
 
+    status->source--;
     return newNumberToken(copy);
 }
 
