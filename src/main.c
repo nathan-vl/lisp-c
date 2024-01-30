@@ -4,31 +4,6 @@
 
 #include "parser.h"
 
-void interpreter()
-{
-    char line[1024];
-    for (;;)
-    {
-        printf("> ");
-        if (!fgets(line, sizeof(line), stdin))
-        {
-            printf("\n");
-            break;
-        }
-
-        TokenLinkedList *current = parse(line);
-        while (current != NULL)
-        {
-            printToken(current->token);
-            freeToken(current->token);
-
-            TokenLinkedList *old = current;
-            current = current->next;
-            free(old);
-        };
-    }
-}
-
 void printObject(Object *object)
 {
     switch (object->kind)
@@ -46,13 +21,13 @@ void printObject(Object *object)
             switch (literal.kind)
             {
             case BOOLEAN:
-                printf("%d", literal.value.boolean);
+                printf("%s", literal.value.boolean ? "t" : "nil");
                 break;
             case NUMBER:
                 printf("%f", literal.value.number);
                 break;
             case STRING:
-                printf("%s", literal.value.string);
+                printf("\"%s\"", literal.value.string);
                 break;
             }
         }
@@ -76,13 +51,40 @@ void printObject(Object *object)
     }
 }
 
+void interpreter()
+{
+    char line[1024];
+    for (;;)
+    {
+        printf("> ");
+        if (!fgets(line, sizeof(line), stdin))
+        {
+            printf("\n");
+            break;
+        }
+
+        TokenLinkedList *current = parse(line);
+        Object object = syntaxAnalyser(current);
+
+        printObject(&object);
+        printf("\n");
+    }
+}
+
 int main(int argc, char **argv)
 {
-    TokenLinkedList *current = parse("(+ 2 2)");
-    Object object = syntaxAnalyser(current);
+    if (argc == 1)
+    {
+        interpreter();
+    }
+    else if (argc == 2)
+    {
+        TokenLinkedList *current = parse("(+ 2 2)");
+        Object object = syntaxAnalyser(current);
 
-    printObject(&object);
-    printf("\n");
+        printObject(&object);
+        printf("\n");
+    }
 
     return 0;
 }

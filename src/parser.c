@@ -29,6 +29,7 @@ Object atomToObject(Atom atom)
 Atom parseAtom(SyntaxAnalyserStatus *status)
 {
     Token token = status->current->token;
+    status->current = status->current->next;
     switch (token.type)
     {
     case T_NIL:
@@ -45,30 +46,21 @@ Object parseObject(SyntaxAnalyserStatus *status);
 
 Cons *parseCons(SyntaxAnalyserStatus *status)
 {
-    Cons *cons = NULL;
-
+    status->current = status->current->next;
     if (status->current == NULL)
     {
         printf("Error. Expected closing ')'\n");
         exit(-1);
     }
 
-    switch (status->current->token.type)
+    if (status->current->token.type == T_CLOSE_PAREN)
     {
-    case T_OPEN_PAREN:
-        cons = malloc(sizeof(Cons));
         status->current = status->current->next;
-        Cons *innerCons = parseCons(status);
-        cons->car = consToObject(innerCons);
-        break;
-    case T_CLOSE_PAREN:
-        break;
-    default:
-        cons = malloc(sizeof(Cons));
-        Atom atom = parseAtom(status);
-        cons->car = atomToObject(atom);
-        status->current = status->current->next;
+        return NULL;
     }
+
+    Cons *cons = malloc(sizeof(Cons));
+    cons->car = parseObject(status);
 
     Cons *current = cons;
     while (status->current->token.type != T_CLOSE_PAREN)
@@ -76,8 +68,6 @@ Cons *parseCons(SyntaxAnalyserStatus *status)
         current->cdr = malloc(sizeof(Cons));
         current->cdr->car = parseObject(status);
         current = current->cdr;
-
-        status->current = status->current->next;
     }
     current->cdr = NULL;
     status->current = status->current->next;
@@ -91,7 +81,6 @@ Object parseObject(SyntaxAnalyserStatus *status)
     switch (token.type)
     {
     case T_OPEN_PAREN:
-        status->current = status->current->next;
         return consToObject(parseCons(status));
     default:
         return atomToObject(parseAtom(status));
