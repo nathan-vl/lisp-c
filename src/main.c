@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lexer.h"
+#include "parser.h"
 
 void interpreter()
 {
@@ -29,30 +29,60 @@ void interpreter()
     }
 }
 
+void printObject(Object *object)
+{
+    switch (object->kind)
+    {
+    case ATOM:
+        Atom atom = object->value.atom;
+        switch (atom.kind)
+        {
+        case IDENTIFIER:
+            char *identifier = atom.value.identifier;
+            printf("%s", identifier);
+            break;
+        case LITERAL:
+            Literal literal = atom.value.literal;
+            switch (literal.kind)
+            {
+            case BOOLEAN:
+                printf("%d", literal.value.boolean);
+                break;
+            case NUMBER:
+                printf("%f", literal.value.number);
+                break;
+            case STRING:
+                printf("%s", literal.value.string);
+                break;
+            }
+        }
+        break;
+    case CONS:
+        Cons *cons = object->value.cons;
+        printf("(");
+        if (cons != NULL)
+        {
+            printObject(&cons->car);
+
+            cons = cons->cdr;
+            while (cons != NULL)
+            {
+                printf(" ");
+                printObject(&cons->car);
+                cons = cons->cdr;
+            }
+        }
+        printf(")");
+    }
+}
+
 int main(int argc, char **argv)
 {
-    if (argc == 1)
-    {
-        interpreter();
-    }
-    else if (argc == 2)
-    {
-        TokenLinkedList *current = parse("(+ 2 2)");
+    TokenLinkedList *current = parse("(+ 2 2)");
+    Object object = syntaxAnalyser(current);
 
-        while (current != NULL)
-        {
-            printToken(current->token);
-            freeToken(current->token);
-
-            TokenLinkedList *old = current;
-            current = current->next;
-            free(old);
-        };
-    }
-    else
-    {
-        // Error
-    }
+    printObject(&object);
+    printf("\n");
 
     return 0;
 }

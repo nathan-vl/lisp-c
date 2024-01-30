@@ -3,7 +3,7 @@
 Literal newStringLiteral(char *string)
 {
     Literal literal;
-    literal.type = STRING;
+    literal.kind = STRING;
     literal.value.string = string;
     return literal;
 }
@@ -11,7 +11,7 @@ Literal newStringLiteral(char *string)
 Literal newNumberLiteral(double number)
 {
     Literal literal;
-    literal.type = NUMBER;
+    literal.kind = NUMBER;
     literal.value.number = number;
     return literal;
 }

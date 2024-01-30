@@ -3,24 +3,24 @@
 
 #include <stdbool.h>
 
-typedef enum DataType
+typedef enum LiteralKind
 {
     BOOLEAN,
     NUMBER,
     STRING
-} DataType;
+} LiteralKind;
 
-typedef union Value
+typedef union LiteralValue
 {
     bool boolean;
     double number;
     char *string;
-} Value;
+} LiteralValue;
 
 typedef struct Literal
 {
-    DataType type;
-    Value value;
+    LiteralKind kind;
+    LiteralValue value;
 } Literal;
 
 Literal newStringLiteral(char *string);
