@@ -150,46 +150,6 @@ void freeToken(Token token)
     }
 }
 
-void printToken(Token token)
-{
-    switch (token.type)
-    {
-    case T_NIL:
-        printf("nil\n");
-        break;
-    case T_T:
-        printf("t\n");
-        break;
-    case T_OPEN_PAREN:
-        printf("L_PAREN\n");
-        break;
-    case T_CLOSE_PAREN:
-        printf("R_PAREN\n");
-        break;
-    case T_IDENTIFIER:
-        printf("<IDENT %s>\n", token.lexeme);
-        break;
-    case T_STRING:
-        printf("<STR \"%s\">\n", token.literal.value.string);
-        break;
-    case T_NUMBER:
-        printf("<NUM %f>\n", token.literal.value.number);
-        break;
-    case T_DEFINE:
-    case T_FOR:
-    case T_IF:
-    case T_LAMBDA:
-    case T_LET:
-    case T_LIST:
-    case T_QUOTE:
-    case T_WHILE:
-        printf("<KEYWORD %s>\n", token.lexeme);
-        break;
-    default:
-        printf("<UNDEFINED>\n");
-    }
-}
-
 Token parseToken(LexerStatus *status)
 {
     char c = status->source[0];
