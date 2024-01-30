@@ -1,10 +1,14 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "data.h"
+#include "literal.h"
 
 typedef enum TokenType
 {
+    // False (nil) and true (t)
+    T_NIL,
+    T_T,
+
     // Parentheses
     T_OPEN_PAREN,
     T_CLOSE_PAREN,
@@ -39,7 +43,7 @@ typedef struct Token
 {
     TokenType type;
     char *lexeme;
-    Data literal;
+    Literal literal;
 } Token;
 
 typedef struct TokenLinkedList

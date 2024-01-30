@@ -1,6 +1,6 @@
 C = gcc
 CFLAGS = -I include --std=c11
-DEBUG_FLAGS = -g -O0 -Wall -Wextra -fsanitize=address
+DEBUG_FLAGS = -g -O0 -Wall -Wextra -save-temps -Wshadow -Wfloat-equal -Wundef -fsanitize=address
 RELEASE_FLAGS = -O3
 
 OUT_OBJ = app

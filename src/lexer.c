@@ -23,22 +23,6 @@ Token newToken(enum TokenType type, char *lexeme)
     return token;
 }
 
-Data newStringLiteral(char *string)
-{
-    Data literal;
-    literal.type = STRING;
-    literal.value.string = string;
-    return literal;
-}
-
-Data newNumberLiteral(double number)
-{
-    Data literal;
-    literal.type = NUMBER;
-    literal.value.number = number;
-    return literal;
-}
-
 Token newStringToken(char *string)
 {
     Token token = newToken(T_STRING, string);
@@ -58,7 +42,8 @@ Token parseString(LexerStatus *status)
     char *start = status->source;
     while (status->source[0] != '\"')
     {
-        if (status->source[0] == '\0') {
+        if (status->source[0] == '\0')
+        {
             printf("Error. Unterminated string\n");
             exit(-1);
         }
@@ -100,6 +85,10 @@ Token parseNumber(LexerStatus *status)
 
 TokenType identifierType(char *identifier)
 {
+    if (strcmp(identifier, "nil") == 0)
+        return T_NIL;
+    if (strcmp(identifier, "t") == 0)
+        return T_T;
     if (strcmp(identifier, "define") == 0)
         return T_DEFINE;
     if (strcmp(identifier, "for") == 0)
@@ -134,7 +123,16 @@ Token parseIdentifier(LexerStatus *status)
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
 
-    return newToken(identifierType(copy), copy);
+    TokenType type = identifierType(copy);
+    switch (type)
+    {
+    case T_NIL:
+    case T_T:
+        free(copy);
+        return newToken(type, NULL);
+    default:
+        return newToken(type, copy);
+    }
 }
 
 // TODO: Check if tokens literals should be free'd now
@@ -155,6 +153,12 @@ void printToken(Token token)
 {
     switch (token.type)
     {
+    case T_NIL:
+        printf("nil\n");
+        break;
+    case T_T:
+        printf("t\n");
+        break;
     case T_OPEN_PAREN:
         printf("L_PAREN\n");
         break;
