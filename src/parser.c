@@ -19,8 +19,8 @@ Object parseValue(SyntaxAnalyserStatus *status)
         return booleanObject(false);
     case T_T:
         return booleanObject(true);
-    // case T_CHARACTER:
-    //     return characterObject(token.literal.value.character);
+    case T_CHARACTER:
+        return characterObject(token.literal.value.character);
     case T_IDENTIFIER:
         return identifierObject(token.lexeme);
     case T_NUMBER:

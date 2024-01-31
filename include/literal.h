@@ -14,6 +14,7 @@ typedef enum LiteralKind
 typedef union LiteralValue
 {
     bool boolean;
+    char character;
     double number;
     char *string;
 } LiteralValue;

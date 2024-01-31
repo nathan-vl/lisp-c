@@ -26,12 +26,15 @@ void printObject(Object *object)
             }
         }
         printf(")");
-    case IDENTIFIER:
-        char *identifier = object->value.identifier;
-        printf("%s", identifier);
         break;
     case BOOLEAN:
         printf("%s", object->value.boolean ? "#t" : "#f");
+        break;
+    case CHARACTER:
+        printf("%c", object->value.character);
+        break;
+    case IDENTIFIER:
+        printf("%s", object->value.identifier);
         break;
     case NUMBER:
         printf("%f", object->value.number);

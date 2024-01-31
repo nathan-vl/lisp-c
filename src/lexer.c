@@ -32,8 +32,9 @@ Token newStringToken(char *string)
 
 Token newNumberToken(char *strNumber)
 {
-    Token token = newToken(T_NUMBER, strNumber);
+    Token token = newToken(T_NUMBER, NULL);
     token.literal = newNumberLiteral(atof(strNumber));
+    free(strNumber);
     return token;
 }
 
@@ -158,10 +159,91 @@ void freeToken(Token token)
     {
     case T_OPEN_PAREN:
     case T_CLOSE_PAREN:
+    case T_NUMBER:
         break;
     default:
         free(token.lexeme);
         break;
+    }
+}
+
+Token parseCharacter(LexerStatus *status)
+{
+    char *start = status->source;
+    while (isValidIdentifier(status->source[0]))
+    {
+        status->source++;
+    }
+
+    size_t length = (status->source - start) / sizeof(char);
+    if (length == 1)
+    {
+        Token token = newToken(T_CHARACTER, NULL);
+        token.literal.kind = L_CHARACTER;
+        token.literal.value.character = start[0];
+        return token;
+    }
+
+    char *copy = malloc(sizeof(char) * length + 1);
+    strncpy(copy, start, length);
+    copy[length] = '\0';
+
+    Token token = newToken(T_CHARACTER, NULL);
+    if (strcmp(copy, "newline") == 0)
+    {
+        token.literal.kind = L_CHARACTER;
+        token.literal.value.character = '\n';
+    }
+    else if (strcmp(copy, "space") == 0)
+    {
+        token.literal.kind = L_CHARACTER;
+        token.literal.value.character = ' ';
+    }
+    else if (strcmp(copy, "tab") == 0)
+    {
+        token.literal.kind = L_CHARACTER;
+        token.literal.value.character = '\t';
+    }
+    else
+    {
+        printf("Error. Character identifier \"#\\%s\" not recognized.", copy);
+        free(copy);
+        exit(-1);
+    }
+
+    free(copy);
+    return token;
+}
+
+Token parseHash(LexerStatus *status)
+{
+    // Ignore hash character
+    status->source++;
+
+    Token token;
+    switch (status->source[0])
+    {
+    case '\\':
+        status->source++;
+        return parseCharacter(status);
+        break;
+    case 'f':
+    case 'F':
+        status->source++;
+        token = newToken(T_F, NULL);
+        token.literal.kind = L_BOOLEAN;
+        token.literal.value.boolean = false;
+        return token;
+    case 't':
+    case 'T':
+        status->source++;
+        token = newToken(T_T, NULL);
+        token.literal.kind = L_BOOLEAN;
+        token.literal.value.boolean = true;
+        return token;
+    default:
+        printf("Error. Unrecognized character after '#'\n");
+        exit(-1);
     }
 }
 
@@ -181,6 +263,8 @@ Token parseToken(LexerStatus *status)
         return newToken(T_CLOSE_PAREN, ")");
     case '"':
         return parseString(status);
+    case '#':
+        return parseHash(status);
 
     // Ignore whitespace
     case '\n':

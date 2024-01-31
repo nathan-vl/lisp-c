@@ -13,10 +13,11 @@ typedef enum TokenType
     T_OPEN_PAREN,
     T_CLOSE_PAREN,
 
-    // Variables, functions and literals
+    // Identifiers and literals
+    T_CHARACTER,
     T_IDENTIFIER,
-    T_STRING,
     T_NUMBER,
+    T_STRING,
 
     T_WHITESPACE,
     T_EOF,
