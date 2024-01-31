@@ -65,14 +65,6 @@ void interpreter()
         }
 
         TokenLinkedList *tokens = parse(line);
-        printf("TOKENS:\n");
-        TokenLinkedList *current = tokens;
-        while (current != NULL)
-        {
-            printToken(current->token);
-            current = current->next;
-        }
-
         Object object = syntaxAnalyser(tokens);
         Object objectEval = evaluate(object);
         printObject(&objectEval);
