@@ -26,8 +26,8 @@ typedef enum TokenType
 typedef struct LexerStatus
 {
     char *source;
-    int start;
-    int current;
+    int line;
+    int col;
 } LexerStatus;
 
 typedef struct Token
@@ -44,7 +44,6 @@ typedef struct TokenLinkedList
 } TokenLinkedList;
 
 TokenLinkedList *parse(char *source);
-void printToken(Token token);
 void freeToken(Token token);
 
 #endif

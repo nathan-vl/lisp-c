@@ -5,6 +5,11 @@
 
 #include "lexer.h"
 
+void lexicalError(char *error, size_t line, size_t col) {
+    printf("Error [line %ld:%ld]. %s\n", line, col, error);
+    exit(-1);
+}
+
 bool isDigit(char c)
 {
     return c >= '0' && c <= '9';
@@ -38,48 +43,19 @@ Token newNumberToken(char *strNumber)
     return token;
 }
 
-void printToken(Token token)
-{
-    switch (token.type)
-    {
-    case T_F:
-        printf("#f\n");
-        break;
-    case T_T:
-        printf("#t\n");
-        break;
-    case T_OPEN_PAREN:
-        printf("L_PAREN\n");
-        break;
-    case T_CLOSE_PAREN:
-        printf("R_PAREN\n");
-        break;
-    case T_IDENTIFIER:
-        printf("<IDENT %s>\n", token.lexeme);
-        break;
-    case T_STRING:
-        printf("<STR \"%s\">\n", token.literal.value.string);
-        break;
-    case T_NUMBER:
-        printf("<NUM %f>\n", token.literal.value.number);
-        break;
-    default:
-        printf("<UNDEFINED>\n");
-    }
-}
-
 Token parseString(LexerStatus *status)
 {
     status->source++;
+    status->col++;
     char *start = status->source;
     while (status->source[0] != '\"')
     {
         if (status->source[0] == '\0')
         {
-            printf("Error. Unterminated string\n");
-            exit(-1);
+            lexicalError("Unterminated string", status->line, status->col);
         }
         status->source++;
+        status->col++;
     }
 
     size_t length = (status->source - start) / sizeof(char) + 1; // + 1 for the \0
@@ -96,14 +72,17 @@ Token parseNumber(LexerStatus *status)
     while (isDigit(status->source[0]))
     {
         status->source++;
+        status->col++;
     }
 
     if (status->source[0] == '.' && isDigit(status->source[1]))
     {
         status->source++;
+        status->col++;
         while (isDigit(status->source[0]))
         {
             status->source++;
+            status->col++;
         }
     }
 
@@ -129,10 +108,12 @@ Token parseIdentifier(LexerStatus *status)
 
     // Since the first character is read, it can be ignored
     status->source++;
+    status->col++;
 
     while (isValidIdentifier(status->source[0]) || isDigit(status->source[0]))
     {
         status->source++;
+        status->col++;
     }
 
     size_t length = (status->source - start) / sizeof(char) + 1; // + 1 for the \0
@@ -173,6 +154,7 @@ Token parseCharacter(LexerStatus *status)
     while (isValidIdentifier(status->source[0]))
     {
         status->source++;
+        status->col++;
     }
 
     size_t length = (status->source - start) / sizeof(char);
@@ -206,9 +188,8 @@ Token parseCharacter(LexerStatus *status)
     }
     else
     {
-        printf("Error. Character identifier \"#\\%s\" not recognized.", copy);
         free(copy);
-        exit(-1);
+        lexicalError("Character identifier not recognized", status->line, status->col);
     }
 
     free(copy);
@@ -219,17 +200,20 @@ Token parseHash(LexerStatus *status)
 {
     // Ignore hash character
     status->source++;
+    status->col++;
 
     Token token;
     switch (status->source[0])
     {
     case '\\':
         status->source++;
+        status->col++;
         return parseCharacter(status);
         break;
     case 'f':
     case 'F':
         status->source++;
+        status->col++;
         token = newToken(T_F, NULL);
         token.literal.kind = L_BOOLEAN;
         token.literal.value.boolean = false;
@@ -237,13 +221,13 @@ Token parseHash(LexerStatus *status)
     case 't':
     case 'T':
         status->source++;
+        status->col++;
         token = newToken(T_T, NULL);
         token.literal.kind = L_BOOLEAN;
         token.literal.value.boolean = true;
         return token;
     default:
-        printf("Error. Unrecognized character after '#'\n");
-        exit(-1);
+        lexicalError("Unrecognized character after '#'", status->line, status->col);
     }
 }
 
@@ -254,12 +238,15 @@ Token parseToken(LexerStatus *status)
     {
     case '\0':
         status->source++;
+        status->col++;
         return newToken(T_EOF, "\0");
     case '(':
         status->source++;
+        status->col++;
         return newToken(T_OPEN_PAREN, "(");
     case ')':
         status->source++;
+        status->col++;
         return newToken(T_CLOSE_PAREN, ")");
     case '"':
         return parseString(status);
@@ -268,10 +255,15 @@ Token parseToken(LexerStatus *status)
 
     // Ignore whitespace
     case '\n':
+        status->source++;
+        status->line++;
+        status->col = 1;
+        return newToken(T_WHITESPACE, NULL);
     case ' ':
     case '\r':
     case '\t':
         status->source++;
+        status->col++;
         return newToken(T_WHITESPACE, NULL);
 
     default:
@@ -285,8 +277,7 @@ Token parseToken(LexerStatus *status)
         }
         else
         {
-            printf("Error. Character '%c' not recognized\n", c);
-            exit(-1);
+            lexicalError("Character not recognized", status->line, status->col);
         }
     }
 }
@@ -298,6 +289,8 @@ TokenLinkedList *parse(char *source)
 
     LexerStatus status;
     status.source = source;
+    status.line = 1;
+    status.col = 1;
 
     while (status.source[0] != '\0')
     {
