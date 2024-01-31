@@ -41,11 +41,11 @@ void printToken(Token token)
 {
     switch (token.type)
     {
-    case T_NIL:
-        printf("nil\n");
+    case T_F:
+        printf("#f\n");
         break;
     case T_T:
-        printf("t\n");
+        printf("#t\n");
         break;
     case T_OPEN_PAREN:
         printf("L_PAREN\n");
@@ -61,16 +61,6 @@ void printToken(Token token)
         break;
     case T_NUMBER:
         printf("<NUM %f>\n", token.literal.value.number);
-        break;
-    case T_DEFINE:
-    case T_FOR:
-    case T_IF:
-    case T_LAMBDA:
-    case T_LET:
-    case T_LIST:
-    case T_QUOTE:
-    case T_WHILE:
-        printf("<KEYWORD %s>\n", token.lexeme);
         break;
     default:
         printf("<UNDEFINED>\n");
@@ -125,24 +115,10 @@ Token parseNumber(LexerStatus *status)
 
 TokenType identifierType(char *identifier)
 {
-    if (strcmp(identifier, "nil") == 0)
-        return T_NIL;
+    if (strcmp(identifier, "f") == 0)
+        return T_F;
     if (strcmp(identifier, "t") == 0)
         return T_T;
-    if (strcmp(identifier, "define") == 0)
-        return T_DEFINE;
-    if (strcmp(identifier, "for") == 0)
-        return T_FOR;
-    if (strcmp(identifier, "if") == 0)
-        return T_IF;
-    if (strcmp(identifier, "lambda") == 0)
-        return T_LAMBDA;
-    if (strcmp(identifier, "list") == 0)
-        return T_LIST;
-    if (strcmp(identifier, "quote") == 0)
-        return T_QUOTE;
-    if (strcmp(identifier, "while") == 0)
-        return T_WHILE;
     return T_IDENTIFIER;
 }
 
@@ -166,7 +142,7 @@ Token parseIdentifier(LexerStatus *status)
     TokenType type = identifierType(copy);
     switch (type)
     {
-    case T_NIL:
+    case T_F:
     case T_T:
         free(copy);
         return newToken(type, NULL);

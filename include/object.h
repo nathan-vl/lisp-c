@@ -1,18 +1,26 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "atom.h"
+#include <stdbool.h>
 
 typedef enum ObjectKind
 {
-    ATOM,
-    CONS
+    BOOLEAN,
+    CHARACTER,
+    IDENTIFIER,
+    LIST,
+    NUMBER,
+    STRING,
 } ObjectKind;
 
 typedef union ObjectValue
 {
-    struct Cons *cons;
-    Atom atom;
+    bool boolean;
+    char character;
+    char *identifier;
+    struct List *list;
+    double number;
+    char *string;
 } ObjectValue;
 
 typedef struct Object
@@ -21,13 +29,26 @@ typedef struct Object
     ObjectValue value;
 } Object;
 
-typedef struct Cons
+typedef struct List
 {
     Object car;
-    struct Cons *cdr;
-} Cons;
+    struct List *cdr;
+} List;
 
-Object consToObject(Cons *cons);
-Object atomToObject(Atom atom);
+/*
+BOOLEAN,
+CHARACTER,
+IDENTIFIER,
+LIST,
+NUMBER,
+STRING,
+*/
+
+Object booleanObject(bool boolean);
+Object characterObject(char character);
+Object identifierObject(char *identifier);
+Object listObject(List *list);
+Object numberObject(double number);
+Object stringObject(char *string);
 
 #endif

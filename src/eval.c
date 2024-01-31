@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,16 +6,16 @@
 
 bool isNumber(Object *object)
 {
-    if (object == NULL || object->kind == CONS)
+    if (object == NULL)
     {
         return false;
     }
-    if (object->value.atom.kind == IDENTIFIER)
+    if (object->kind == IDENTIFIER)
     {
         // TODO: Checar valor da variável se é número
         return false;
     }
-    if (object->value.atom.value.literal.kind != NUMBER)
+    if (object->kind != NUMBER)
     {
         return false;
     }
@@ -23,118 +24,121 @@ bool isNumber(Object *object)
 
 double getNumber(Object *object)
 {
-    if (!isNumber(object))
+    Object eval = evaluate(*object);
+    if (!isNumber(&eval))
     {
         printf("Error. Expression should eval to number type.\n");
         exit(-1);
     }
-    return object->value.atom.value.literal.value.number;
+    return eval.value.number;
 }
 
-Literal add(Cons *cons)
+Object add(List *list)
 {
     double result = 0;
-    while (cons != NULL)
+    while (list != NULL)
     {
-        Object value = evaluate(cons->car);
+        Object value = evaluate(list->car);
         double number = getNumber(&value);
         result += number;
-        cons = cons->cdr;
+        list = list->cdr;
     }
-    return newNumberLiteral(result);
+    return numberObject(result);
 }
 
-Literal subtract(Cons *cons)
+Object subtract(List *list)
 {
-    Object eval = evaluate(cons->car);
+    Object eval = evaluate(list->car);
     double result = getNumber(&eval);
-    cons = cons->cdr;
-    while (cons != NULL)
+    list = list->cdr;
+    while (list != NULL)
     {
-        Object value = evaluate(cons->car);
+        Object value = evaluate(list->car);
         double number = getNumber(&value);
         result -= number;
-        cons = cons->cdr;
+        list = list->cdr;
     }
-    return newNumberLiteral(result);
+    return numberObject(result);
 }
 
-Literal multiply(Cons *cons)
+Object multiply(List *list)
 {
     double result = 1;
-    while (cons != NULL)
+    while (list != NULL)
     {
-        Object value = evaluate(cons->car);
+        Object value = evaluate(list->car);
         double number = getNumber(&value);
         result *= number;
-        cons = cons->cdr;
+        list = list->cdr;
     }
-    return newNumberLiteral(result);
+    return numberObject(result);
 }
 
-Literal divide(Cons *cons)
+Object divide(List *list)
 {
-    Object eval = evaluate(cons->car);
+    Object eval = evaluate(list->car);
     double result = getNumber(&eval);
-    cons = cons->cdr;
-    while (cons != NULL)
+    list = list->cdr;
+    while (list != NULL)
     {
-        Object value = evaluate(cons->car);
+        Object value = evaluate(list->car);
         double number = getNumber(&value);
         result /= number;
-        cons = cons->cdr;
+        list = list->cdr;
     }
-    return newNumberLiteral(result);
+    return numberObject(result);
 }
 
-Object evaluate(Object object)
+Object evaluateList(List *list)
 {
-    if (object.kind == ATOM)
+    if (list == NULL)
     {
-        return object;
+        // ?
     }
 
-    Cons *cons = object.value.cons;
-    if (cons == NULL)
+    Object car = list->car;
+    if (car.kind == LIST)
     {
-        return atomToObject(literalToAtom(newNilLiteral()));
-    }
-
-    Object car = cons->car;
-    if (car.kind == CONS)
-    {
-        printf("Error. Could not call cons\n");
+        printf("Error. Could not call list\n");
         exit(-1);
     }
 
-    Atom atom = car.value.atom;
-    if (atom.kind == LITERAL)
+    if (car.kind != IDENTIFIER)
     {
         printf("Error. Could not call literal\n");
         exit(-1);
     }
 
-    char *identifier = atom.value.identifier;
+    char *identifier = car.value.identifier;
     if (strcmp(identifier, "+") == 0)
+        return add(list->cdr);
+
+    if (strcmp(identifier, "-") == 0)
+        return subtract(list->cdr);
+
+    if (strcmp(identifier, "*") == 0)
+        return multiply(list->cdr);
+
+    if (strcmp(identifier, "/") == 0)
+        return divide(list->cdr);
+}
+
+Object evaluate(Object object)
+{
+    if (object.kind == LIST)
     {
-        Literal result = add(cons->cdr);
-        return atomToObject(literalToAtom(result));
-    }
-    else if (strcmp(identifier, "-") == 0)
-    {
-        Literal result = subtract(cons->cdr);
-        return atomToObject(literalToAtom(result));
-    }
-    else if (strcmp(identifier, "*") == 0)
-    {
-        Literal result = multiply(cons->cdr);
-        return atomToObject(literalToAtom(result));
-    }
-    else if (strcmp(identifier, "/") == 0)
-    {
-        Literal result = divide(cons->cdr);
-        return atomToObject(literalToAtom(result));
+        List *list = object.value.list;
+        return evaluateList(list);
     }
 
-    printf("Error. Identifier \"%s\" not detected\n", cons->car.value.atom.value.identifier);
+    if (object.kind == IDENTIFIER)
+    {
+    }
+
+    if (object.kind != LIST && object.kind != IDENTIFIER)
+    {
+        return object;
+    }
+
+    // printf("Error. Identifier \"%s\" not detected\n", list->car.value.atom.value.identifier);
 }

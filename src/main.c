@@ -4,51 +4,41 @@
 
 #include "parser.h"
 #include "eval.h"
+#include "object.h"
 
 void printObject(Object *object)
 {
     switch (object->kind)
     {
-    case ATOM:
-        Atom atom = object->value.atom;
-        switch (atom.kind)
-        {
-        case IDENTIFIER:
-            char *identifier = atom.value.identifier;
-            printf("%s", identifier);
-            break;
-        case LITERAL:
-            Literal literal = atom.value.literal;
-            switch (literal.kind)
-            {
-            case BOOLEAN:
-                printf("%s", literal.value.boolean ? "t" : "nil");
-                break;
-            case NUMBER:
-                printf("%f", literal.value.number);
-                break;
-            case STRING:
-                printf("\"%s\"", literal.value.string);
-                break;
-            }
-        }
-        break;
-    case CONS:
-        Cons *cons = object->value.cons;
+    case LIST:
+        List *list = object->value.list;
         printf("(");
-        if (cons != NULL)
+        if (list != NULL)
         {
-            printObject(&cons->car);
+            printObject(&list->car);
 
-            cons = cons->cdr;
-            while (cons != NULL)
+            list = list->cdr;
+            while (list != NULL)
             {
                 printf(" ");
-                printObject(&cons->car);
-                cons = cons->cdr;
+                printObject(&list->car);
+                list = list->cdr;
             }
         }
         printf(")");
+    case IDENTIFIER:
+        char *identifier = object->value.identifier;
+        printf("%s", identifier);
+        break;
+    case BOOLEAN:
+        printf("%s", object->value.boolean ? "#t" : "#f");
+        break;
+    case NUMBER:
+        printf("%f", object->value.number);
+        break;
+    case STRING:
+        printf("\"%s\"", object->value.string);
+        break;
     }
 }
 

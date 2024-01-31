@@ -1,17 +1,49 @@
 #include "object.h"
 
-Object consToObject(Cons *cons)
+Object booleanObject(bool boolean)
 {
     Object object;
-    object.kind = CONS;
-    object.value.cons = cons;
+    object.kind = BOOLEAN;
+    object.value.boolean = boolean;
     return object;
 }
 
-Object atomToObject(Atom atom)
+Object characterObject(char character)
 {
     Object object;
-    object.kind = ATOM;
-    object.value.atom = atom;
+    object.kind = CHARACTER;
+    object.value.character = character;
+    return object;
+}
+
+Object identifierObject(char *identifier)
+{
+    Object object;
+    object.kind = IDENTIFIER;
+    object.value.identifier = identifier;
+    return object;
+}
+
+Object listObject(List *list)
+{
+    Object object;
+    object.kind = LIST;
+    object.value.list = list;
+    return object;
+}
+
+Object numberObject(double number)
+{
+    Object object;
+    object.kind = NUMBER;
+    object.value.number = number;
+    return object;
+}
+
+Object stringObject(char *string)
+{
+    Object object;
+    object.kind = STRING;
+    object.value.string = string;
     return object;
 }

@@ -5,9 +5,10 @@
 
 typedef enum LiteralKind
 {
-    BOOLEAN,
-    NUMBER,
-    STRING
+    L_BOOLEAN,
+    L_CHARACTER,
+    L_NUMBER,
+    L_STRING,
 } LiteralKind;
 
 typedef union LiteralValue
@@ -25,7 +26,7 @@ typedef struct Literal
 
 Literal newStringLiteral(char *string);
 Literal newNumberLiteral(double number);
-Literal newNilLiteral();
-Literal newTLiteral();
+Literal newFalseLiteral();
+Literal newTrueLiteral();
 
 #endif

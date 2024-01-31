@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "atom.h"
 #include "object.h"
 #include "lexer.h"
 
@@ -10,25 +9,33 @@ typedef struct SyntaxAnalyserStatus
     TokenLinkedList *current;
 } SyntaxAnalyserStatus;
 
-Atom parseAtom(SyntaxAnalyserStatus *status)
+Object parseValue(SyntaxAnalyserStatus *status)
 {
     Token token = status->current->token;
     status->current = status->current->next;
     switch (token.type)
     {
-    case T_NIL:
+    case T_F:
+        return booleanObject(false);
     case T_T:
-    case T_STRING:
+        return booleanObject(true);
+    // case T_CHARACTER:
+    //     return characterObject(token.literal.value.character);
+    case T_IDENTIFIER:
+        return identifierObject(token.lexeme);
     case T_NUMBER:
-        return literalToAtom(token.literal);
+        return numberObject(token.literal.value.number);
+    case T_STRING:
+        return stringObject(token.literal.value.string);
     default:
-        return identifierToAtom(token.lexeme);
+        // Error
+        break;
     }
 }
 
 Object parseObject(SyntaxAnalyserStatus *status);
 
-Cons *parseCons(SyntaxAnalyserStatus *status)
+List *parseList(SyntaxAnalyserStatus *status)
 {
     status->current = status->current->next;
     if (status->current == NULL)
@@ -43,20 +50,20 @@ Cons *parseCons(SyntaxAnalyserStatus *status)
         return NULL;
     }
 
-    Cons *cons = malloc(sizeof(Cons));
-    cons->car = parseObject(status);
+    List *list = malloc(sizeof(List));
+    list->car = parseObject(status);
 
-    Cons *current = cons;
+    List *current = list;
     while (status->current->token.type != T_CLOSE_PAREN)
     {
-        current->cdr = malloc(sizeof(Cons));
+        current->cdr = malloc(sizeof(List));
         current->cdr->car = parseObject(status);
         current = current->cdr;
     }
     current->cdr = NULL;
     status->current = status->current->next;
 
-    return cons;
+    return list;
 }
 
 Object parseObject(SyntaxAnalyserStatus *status)
@@ -65,9 +72,9 @@ Object parseObject(SyntaxAnalyserStatus *status)
     switch (token.type)
     {
     case T_OPEN_PAREN:
-        return consToObject(parseCons(status));
+        return listObject(parseList(status));
     default:
-        return atomToObject(parseAtom(status));
+        return parseValue(status);
     }
 }
 

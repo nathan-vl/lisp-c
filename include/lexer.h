@@ -5,23 +5,13 @@
 
 typedef enum TokenType
 {
-    // False (nil) and true (t)
-    T_NIL,
+    // False (f) and true (t)
+    T_F,
     T_T,
 
     // Parentheses
     T_OPEN_PAREN,
     T_CLOSE_PAREN,
-
-    // Reserved terms
-    T_DEFINE,
-    T_FOR,
-    T_IF,
-    T_LAMBDA,
-    T_LET,
-    T_LIST,
-    T_QUOTE,
-    T_WHILE,
 
     // Variables, functions and literals
     T_IDENTIFIER,

@@ -3,7 +3,7 @@
 Literal newStringLiteral(char *string)
 {
     Literal literal;
-    literal.kind = STRING;
+    literal.kind = L_STRING;
     literal.value.string = string;
     return literal;
 }
@@ -11,23 +11,23 @@ Literal newStringLiteral(char *string)
 Literal newNumberLiteral(double number)
 {
     Literal literal;
-    literal.kind = NUMBER;
+    literal.kind = L_NUMBER;
     literal.value.number = number;
     return literal;
 }
 
-Literal newNilLiteral()
+Literal newFalseLiteral()
 {
     Literal literal;
-    literal.kind = BOOLEAN;
+    literal.kind = L_BOOLEAN;
     literal.value.boolean = false;
     return literal;
 }
 
-Literal newTLiteral()
+Literal newTrueLiteral()
 {
     Literal literal;
-    literal.kind = BOOLEAN;
+    literal.kind = L_BOOLEAN;
     literal.value.boolean = true;
     return literal;
 }
