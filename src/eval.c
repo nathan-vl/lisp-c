@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "eval.h"
 
-bool isNumber(Object *object)
+bool isNumber(Environment *env, Object *object)
 {
     if (object == NULL)
     {
@@ -12,8 +13,13 @@ bool isNumber(Object *object)
     }
     if (object->kind == IDENTIFIER)
     {
-        // TODO: Checar valor da variável se é número
-        return false;
+        Object *value = getVariable(env, object->value.identifier);
+        if (value == NULL)
+        {
+            printf("Error. Variable \"%s\" is not defined.\n", object->value.identifier);
+            exit(-1);
+        }
+        return isNumber(env, value);
     }
     if (object->kind != NUMBER)
     {
@@ -22,10 +28,10 @@ bool isNumber(Object *object)
     return true;
 }
 
-double getNumber(Object *object)
+double getNumber(Environment *env, Object *object)
 {
-    Object eval = evaluate(*object);
-    if (!isNumber(&eval))
+    Object eval = evaluate(env, *object);
+    if (!isNumber(env, &eval))
     {
         printf("Error. Expression should eval to number type.\n");
         exit(-1);
@@ -33,63 +39,104 @@ double getNumber(Object *object)
     return eval.value.number;
 }
 
-Object add(List *list)
+Object define(Environment *env, List *list)
+{
+    if (list->car.kind != IDENTIFIER)
+    {
+        printf("Error. Expected identifier.\n");
+        exit(-1);
+    }
+
+    if (list->cdr == NULL)
+    {
+        printf("Error. Expected identifier value.\n");
+        exit(-1);
+    }
+
+    if (list->cdr->cdr != NULL)
+    {
+        printf("Error. Expected exactly 2 arguments.\n");
+        exit(-1);
+    }
+
+    char *identifier = list->car.value.identifier;
+    defineVariable(env, identifier, &list->cdr->car);
+    return booleanObject(true);
+}
+
+Object add(Environment *env, List *list)
 {
     double result = 0;
     while (list != NULL)
     {
-        Object value = evaluate(list->car);
-        double number = getNumber(&value);
+        Object value = evaluate(env, list->car);
+        double number = getNumber(env, &value);
         result += number;
         list = list->cdr;
     }
     return numberObject(result);
 }
 
-Object subtract(List *list)
+Object subtract(Environment *env, List *list)
 {
-    Object eval = evaluate(list->car);
-    double result = getNumber(&eval);
+    Object eval = evaluate(env, list->car);
+    double result = getNumber(env, &eval);
     list = list->cdr;
     while (list != NULL)
     {
-        Object value = evaluate(list->car);
-        double number = getNumber(&value);
+        Object value = evaluate(env, list->car);
+        double number = getNumber(env, &value);
         result -= number;
         list = list->cdr;
     }
     return numberObject(result);
 }
 
-Object multiply(List *list)
+Object multiply(Environment *env, List *list)
 {
     double result = 1;
     while (list != NULL)
     {
-        Object value = evaluate(list->car);
-        double number = getNumber(&value);
+        Object value = evaluate(env, list->car);
+        double number = getNumber(env, &value);
         result *= number;
         list = list->cdr;
     }
     return numberObject(result);
 }
 
-Object divide(List *list)
+Object divide(Environment *env, List *list)
 {
-    Object eval = evaluate(list->car);
-    double result = getNumber(&eval);
+    Object eval = evaluate(env, list->car);
+    double result = getNumber(env, &eval);
     list = list->cdr;
     while (list != NULL)
     {
-        Object value = evaluate(list->car);
-        double number = getNumber(&value);
+        Object value = evaluate(env, list->car);
+        double number = getNumber(env, &value);
         result /= number;
         list = list->cdr;
     }
     return numberObject(result);
 }
 
-Object evaluateList(List *list)
+Object not(Environment * env, List *list)
+{
+    if (list->cdr != NULL)
+    {
+        printf("Error. Function \"not\" expects one argument, but given more.\n");
+        exit(-1);
+    }
+
+    Object eval = evaluate(env, list->car);
+    if (eval.kind == BOOLEAN && eval.value.boolean)
+    {
+        return booleanObject(false);
+    }
+    return booleanObject(true);
+}
+
+Object evaluateList(Environment *env, List *list)
 {
     if (list == NULL)
     {
@@ -110,35 +157,41 @@ Object evaluateList(List *list)
     }
 
     char *identifier = car.value.identifier;
+    if (strcmp(identifier, "define") == 0)
+        return define(env, list->cdr);
+
     if (strcmp(identifier, "+") == 0)
-        return add(list->cdr);
-
+        return add(env, list->cdr);
     if (strcmp(identifier, "-") == 0)
-        return subtract(list->cdr);
-
+        return subtract(env, list->cdr);
     if (strcmp(identifier, "*") == 0)
-        return multiply(list->cdr);
-
+        return multiply(env, list->cdr);
     if (strcmp(identifier, "/") == 0)
-        return divide(list->cdr);
+        return divide(env, list->cdr);
+
+    if (strcmp(identifier, "not") == 0)
+        return not(env, list->cdr);
 }
 
-Object evaluate(Object object)
+Object evaluate(Environment *env, Object object)
 {
     if (object.kind == LIST)
     {
         List *list = object.value.list;
-        return evaluateList(list);
+        return evaluateList(env, list);
     }
 
     if (object.kind == IDENTIFIER)
     {
+        char *identifier = object.value.identifier;
+        Object *var = getVariable(env, identifier);
+        if (var == NULL)
+        {
+            printf("Error. Variable \"%s\" is not defined.\n", identifier);
+            exit(-1);
+        }
+        return evaluate(env, *var);
     }
 
-    if (object.kind != LIST && object.kind != IDENTIFIER)
-    {
-        return object;
-    }
-
-    // printf("Error. Identifier \"%s\" not detected\n", list->car.value.atom.value.identifier);
+    return object;
 }

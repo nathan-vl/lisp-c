@@ -2,7 +2,8 @@
 #define EVAL_H
 
 #include "object.h"
+#include "environment.h"
 
-Object evaluate(Object object);
+Object evaluate(Environment *env, Object object);
 
 #endif

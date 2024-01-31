@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "parser.h"
+#include "environment.h"
 #include "eval.h"
 #include "object.h"
 
@@ -59,7 +60,9 @@ void interpreter()
 
         TokenLinkedList *tokens = parse(line);
         Object object = syntaxAnalyser(tokens);
-        Object objectEval = evaluate(object);
+
+        Environment env;
+        Object objectEval = evaluate(&env, object);
         printObject(&objectEval);
         printf("\n");
     }
