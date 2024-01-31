@@ -27,4 +27,7 @@ typedef struct Cons
     struct Cons *cdr;
 } Cons;
 
+Object consToObject(Cons *cons);
+Object atomToObject(Atom atom);
+
 #endif

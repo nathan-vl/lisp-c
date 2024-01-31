@@ -10,22 +10,6 @@ typedef struct SyntaxAnalyserStatus
     TokenLinkedList *current;
 } SyntaxAnalyserStatus;
 
-Object consToObject(Cons *cons)
-{
-    Object object;
-    object.kind = CONS;
-    object.value.cons = cons;
-    return object;
-}
-
-Object atomToObject(Atom atom)
-{
-    Object object;
-    object.kind = ATOM;
-    object.value.atom = atom;
-    return object;
-}
-
 Atom parseAtom(SyntaxAnalyserStatus *status)
 {
     Token token = status->current->token;

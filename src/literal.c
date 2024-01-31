@@ -15,3 +15,19 @@ Literal newNumberLiteral(double number)
     literal.value.number = number;
     return literal;
 }
+
+Literal newNilLiteral()
+{
+    Literal literal;
+    literal.kind = BOOLEAN;
+    literal.value.boolean = false;
+    return literal;
+}
+
+Literal newTLiteral()
+{
+    Literal literal;
+    literal.kind = BOOLEAN;
+    literal.value.boolean = true;
+    return literal;
+}

@@ -25,5 +25,7 @@ typedef struct Literal
 
 Literal newStringLiteral(char *string);
 Literal newNumberLiteral(double number);
+Literal newNilLiteral();
+Literal newTLiteral();
 
 #endif

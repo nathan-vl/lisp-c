@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "parser.h"
+#include "eval.h"
 
 void printObject(Object *object)
 {
@@ -63,10 +64,18 @@ void interpreter()
             break;
         }
 
-        TokenLinkedList *current = parse(line);
-        Object object = syntaxAnalyser(current);
+        TokenLinkedList *tokens = parse(line);
+        printf("TOKENS:\n");
+        TokenLinkedList *current = tokens;
+        while (current != NULL)
+        {
+            printToken(current->token);
+            current = current->next;
+        }
 
-        printObject(&object);
+        Object object = syntaxAnalyser(tokens);
+        Object objectEval = evaluate(object);
+        printObject(&objectEval);
         printf("\n");
     }
 }

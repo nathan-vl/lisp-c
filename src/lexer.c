@@ -37,8 +37,49 @@ Token newNumberToken(char *strNumber)
     return token;
 }
 
+void printToken(Token token)
+{
+    switch (token.type)
+    {
+    case T_NIL:
+        printf("nil\n");
+        break;
+    case T_T:
+        printf("t\n");
+        break;
+    case T_OPEN_PAREN:
+        printf("L_PAREN\n");
+        break;
+    case T_CLOSE_PAREN:
+        printf("R_PAREN\n");
+        break;
+    case T_IDENTIFIER:
+        printf("<IDENT %s>\n", token.lexeme);
+        break;
+    case T_STRING:
+        printf("<STR \"%s\">\n", token.literal.value.string);
+        break;
+    case T_NUMBER:
+        printf("<NUM %f>\n", token.literal.value.number);
+        break;
+    case T_DEFINE:
+    case T_FOR:
+    case T_IF:
+    case T_LAMBDA:
+    case T_LET:
+    case T_LIST:
+    case T_QUOTE:
+    case T_WHILE:
+        printf("<KEYWORD %s>\n", token.lexeme);
+        break;
+    default:
+        printf("<UNDEFINED>\n");
+    }
+}
+
 Token parseString(LexerStatus *status)
 {
+    status->source++;
     char *start = status->source;
     while (status->source[0] != '\"')
     {
@@ -69,18 +110,16 @@ Token parseNumber(LexerStatus *status)
     if (status->source[0] == '.' && isDigit(status->source[1]))
     {
         status->source++;
-        while (isDigit(status->source[1]))
+        while (isDigit(status->source[0]))
         {
             status->source++;
         }
     }
 
-    size_t length = (status->source - start) / sizeof(char) + 2; // + 2 for the last character and the \0
+    size_t length = (status->source - start) / sizeof(char) + 1; // +1 for the '\0'
     char *copy = malloc(sizeof(char) * length);
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
-
-    status->source--;
     return newNumberToken(copy);
 }
 
@@ -156,13 +195,15 @@ Token parseToken(LexerStatus *status)
     switch (c)
     {
     case '\0':
+        status->source++;
         return newToken(T_EOF, "\0");
     case '(':
+        status->source++;
         return newToken(T_OPEN_PAREN, "(");
     case ')':
+        status->source++;
         return newToken(T_CLOSE_PAREN, ")");
     case '"':
-        status->source++;
         return parseString(status);
 
     // Ignore whitespace
@@ -170,6 +211,7 @@ Token parseToken(LexerStatus *status)
     case ' ':
     case '\r':
     case '\t':
+        status->source++;
         return newToken(T_WHITESPACE, NULL);
 
     default:
@@ -200,7 +242,6 @@ TokenLinkedList *parse(char *source)
     while (status.source[0] != '\0')
     {
         Token token = parseToken(&status);
-        status.source++;
         if (token.type == T_WHITESPACE)
         {
             continue;
