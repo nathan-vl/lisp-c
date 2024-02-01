@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "object.h"
-#include "lexer.h"
+#include "parser.h"
 
 typedef struct SyntaxAnalyserStatus
 {
@@ -78,13 +77,21 @@ Object parseObject(SyntaxAnalyserStatus *status)
     }
 }
 
-Object syntaxAnalyser(TokenLinkedList *tokens)
+ObjectLinkedList *syntaxAnalyser(TokenLinkedList *tokens)
 {
     SyntaxAnalyserStatus status;
     status.current = tokens;
 
+    ObjectLinkedList objects;
+    ObjectLinkedList *current = &objects;
+
     while (status.current != NULL)
     {
-        return parseObject(&status);
+        current->next = malloc(sizeof(ObjectLinkedList));
+        current = current->next;
+        current->value = parseObject(&status);
+        current->next = NULL;
     }
+
+    return objects.next;
 }

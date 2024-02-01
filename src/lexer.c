@@ -5,7 +5,8 @@
 
 #include "lexer.h"
 
-void lexicalError(char *error, size_t line, size_t col) {
+void lexicalError(char *error, size_t line, size_t col)
+{
     printf("Error [line %ld:%ld]. %s\n", line, col, error);
     exit(-1);
 }
@@ -62,6 +63,9 @@ Token parseString(LexerStatus *status)
     char *copy = malloc(sizeof(char) * length);
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
+
+    status->source++;
+    status->col++;
 
     return newStringToken(copy);
 }

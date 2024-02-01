@@ -5,27 +5,26 @@
 
 #include "eval.h"
 
+bool isTruthy(Environment *env, Object *object)
+{
+    Object eval = evaluate(env, *object);
+    return eval.kind != BOOLEAN || eval.value.boolean;
+}
+
 bool isNumber(Environment *env, Object *object)
 {
     if (object == NULL)
     {
         return false;
     }
+
     if (object->kind == IDENTIFIER)
     {
-        Object *value = getVariable(env, object->value.identifier);
-        if (value == NULL)
-        {
-            printf("Error. Variable \"%s\" is not defined.\n", object->value.identifier);
-            exit(-1);
-        }
-        return isNumber(env, value);
+        Object eval = evaluate(env, *object);
+        return isNumber(env, &eval);
     }
-    if (object->kind != NUMBER)
-    {
-        return false;
-    }
-    return true;
+
+    return object->kind == NUMBER;
 }
 
 double getNumber(Environment *env, Object *object)
@@ -120,7 +119,7 @@ Object divide(Environment *env, List *list)
     return numberObject(result);
 }
 
-Object not(Environment * env, List *list)
+Object negation(Environment *env, List *list)
 {
     if (list->cdr != NULL)
     {
@@ -128,12 +127,7 @@ Object not(Environment * env, List *list)
         exit(-1);
     }
 
-    Object eval = evaluate(env, list->car);
-    if (eval.kind == BOOLEAN && eval.value.boolean)
-    {
-        return booleanObject(false);
-    }
-    return booleanObject(true);
+    return booleanObject(!isTruthy(env, &list->car));
 }
 
 Object evaluateList(Environment *env, List *list)
@@ -170,7 +164,7 @@ Object evaluateList(Environment *env, List *list)
         return divide(env, list->cdr);
 
     if (strcmp(identifier, "not") == 0)
-        return not(env, list->cdr);
+        return negation(env, list->cdr);
 }
 
 Object evaluate(Environment *env, Object object)

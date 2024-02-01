@@ -49,6 +49,9 @@ void printObject(Object *object)
 void interpreter()
 {
     char line[1024];
+
+    Environment env;
+
     for (;;)
     {
         printf("> ");
@@ -59,12 +62,22 @@ void interpreter()
         }
 
         TokenLinkedList *tokens = parse(line);
-        Object object = syntaxAnalyser(tokens);
+        ObjectLinkedList *objects = syntaxAnalyser(tokens);
+        while (tokens != NULL)
+        {
+            TokenLinkedList *current = tokens;
+            tokens = tokens->next;
+            free(current);
+        }
 
-        Environment env;
-        Object objectEval = evaluate(&env, object);
-        printObject(&objectEval);
-        printf("\n");
+        while (objects != NULL)
+        {
+            Object objectEval = evaluate(&env, objects->value);
+            printObject(&objectEval);
+            printf("\n");
+
+            objects = objects->next;
+        }
     }
 }
 
@@ -76,11 +89,8 @@ int main(int argc, char **argv)
     }
     else if (argc == 2)
     {
-        TokenLinkedList *current = parse("(+ 2 2)");
-        Object object = syntaxAnalyser(current);
-
-        printObject(&object);
-        printf("\n");
+        printf("Error. File reader not implemented.\n");
+        return -1;
     }
 
     return 0;

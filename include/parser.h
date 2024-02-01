@@ -4,6 +4,12 @@
 #include "lexer.h"
 #include "object.h"
 
-Object syntaxAnalyser(TokenLinkedList *tokens);
+typedef struct ObjectLinkedList
+{
+    Object value;
+    struct ObjectLinkedList *next;
+} ObjectLinkedList;
+
+ObjectLinkedList *syntaxAnalyser(TokenLinkedList *tokens);
 
 #endif
