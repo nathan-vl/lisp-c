@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer.h"
+#include "scanner.h"
 
 void lexicalError(char *error, size_t line, size_t col)
 {
@@ -44,7 +44,7 @@ Token newNumberToken(char *strNumber)
     return token;
 }
 
-Token parseString(LexerStatus *status)
+Token parseString(ScannerStatus *status)
 {
     status->source++;
     status->col++;
@@ -70,7 +70,7 @@ Token parseString(LexerStatus *status)
     return newStringToken(copy);
 }
 
-Token parseNumber(LexerStatus *status)
+Token parseNumber(ScannerStatus *status)
 {
     char *start = status->source;
     while (isDigit(status->source[0]))
@@ -106,7 +106,7 @@ TokenType identifierType(char *identifier)
     return T_IDENTIFIER;
 }
 
-Token parseIdentifier(LexerStatus *status)
+Token parseIdentifier(ScannerStatus *status)
 {
     char *start = status->source;
 
@@ -152,7 +152,7 @@ void freeToken(Token token)
     }
 }
 
-Token parseCharacter(LexerStatus *status)
+Token parseCharacter(ScannerStatus *status)
 {
     char *start = status->source;
     while (isValidIdentifier(status->source[0]))
@@ -200,7 +200,7 @@ Token parseCharacter(LexerStatus *status)
     return token;
 }
 
-Token parseHash(LexerStatus *status)
+Token parseHash(ScannerStatus *status)
 {
     // Ignore hash character
     status->source++;
@@ -235,7 +235,7 @@ Token parseHash(LexerStatus *status)
     }
 }
 
-Token parseToken(LexerStatus *status)
+Token parseToken(ScannerStatus *status)
 {
     char c = status->source[0];
     switch (c)
@@ -291,7 +291,7 @@ TokenLinkedList *parse(char *source)
     TokenLinkedList tokensHead;
     TokenLinkedList *current = &tokensHead;
 
-    LexerStatus status;
+    ScannerStatus status;
     status.source = source;
     status.line = 1;
     status.col = 1;

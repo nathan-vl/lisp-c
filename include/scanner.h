@@ -1,5 +1,5 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef SCANNER_H
+#define SCANNER_H
 
 #include "literal.h"
 
@@ -23,12 +23,12 @@ typedef enum TokenType
     T_EOF,
 } TokenType;
 
-typedef struct LexerStatus
+typedef struct ScannerStatus
 {
     char *source;
     int line;
     int col;
-} LexerStatus;
+} ScannerStatus;
 
 typedef struct Token
 {
