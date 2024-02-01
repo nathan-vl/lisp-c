@@ -1,49 +1,38 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "parser.h"
 #include "environment.h"
 #include "eval.h"
-#include "object.h"
 
-void printObject(Object *object)
+char *readFile(char *path)
 {
-    switch (object->kind)
+    FILE *file = fopen(path, "rb");
+    if (file == NULL)
     {
-    case LIST:
-        List *list = object->value.list;
-        printf("(");
-        if (list != NULL)
-        {
-            printObject(&list->car);
-
-            list = list->cdr;
-            while (list != NULL)
-            {
-                printf(" ");
-                printObject(&list->car);
-                list = list->cdr;
-            }
-        }
-        printf(")");
-        break;
-    case BOOLEAN:
-        printf("%s", object->value.boolean ? "#t" : "#f");
-        break;
-    case CHARACTER:
-        printf("%c", object->value.character);
-        break;
-    case IDENTIFIER:
-        printf("%s", object->value.identifier);
-        break;
-    case NUMBER:
-        printf("%f", object->value.number);
-        break;
-    case STRING:
-        printf("\"%s\"", object->value.string);
-        break;
+        printf("Error. Could not open file \"%s\".\n", path);
     }
+
+    fseek(file, 0L, SEEK_END);
+    size_t size = ftell(file);
+    rewind(file);
+
+    char *buffer = (char *)malloc(size + 1);
+    if (buffer == NULL)
+    {
+        printf("Error. Not enough memory to read file.");
+    }
+
+    size_t bytesRead = fread(buffer, sizeof(char), size, file);
+    if (bytesRead < size)
+    {
+        printf("Error. Could not read file \"%s\".\n", path);
+    }
+    buffer[size - 1] = '\0';
+
+    fclose(file);
+
+    return buffer;
 }
 
 void interpreter()
@@ -89,7 +78,24 @@ int main(int argc, char **argv)
     }
     else if (argc == 2)
     {
-        printf("Error. File reader not implemented.\n");
+        char *fileContents = readFile(argv[1]);
+
+        Environment env;
+
+        TokenLinkedList *tokens = parse(fileContents);
+        ObjectLinkedList *objects = syntaxAnalyser(tokens);
+        while (tokens != NULL)
+        {
+            TokenLinkedList *current = tokens;
+            tokens = tokens->next;
+            free(current);
+        }
+
+        while (objects != NULL)
+        {
+            Object objectEval = evaluate(&env, objects->value);
+            objects = objects->next;
+        }
         return -1;
     }
 

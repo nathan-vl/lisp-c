@@ -5,6 +5,45 @@
 
 #include "eval.h"
 
+void printObject(Object *object)
+{
+    switch (object->kind)
+    {
+    case LIST:
+        List *list = object->value.list;
+        printf("(");
+        if (list != NULL)
+        {
+            printObject(&list->car);
+
+            list = list->cdr;
+            while (list != NULL)
+            {
+                printf(" ");
+                printObject(&list->car);
+                list = list->cdr;
+            }
+        }
+        printf(")");
+        break;
+    case BOOLEAN:
+        printf("%s", object->value.boolean ? "#t" : "#f");
+        break;
+    case CHARACTER:
+        printf("%c", object->value.character);
+        break;
+    case IDENTIFIER:
+        printf("%s", object->value.identifier);
+        break;
+    case NUMBER:
+        printf("%f", object->value.number);
+        break;
+    case STRING:
+        printf("\"%s\"", object->value.string);
+        break;
+    }
+}
+
 bool isTruthy(Environment *env, Object *object)
 {
     Object eval = evaluate(env, *object);
@@ -36,6 +75,23 @@ double getNumber(Environment *env, Object *object)
         exit(-1);
     }
     return eval.value.number;
+}
+
+Object print(Environment *env, List *list)
+{
+    Object car = evaluate(env, list->car);
+    printObject(&car);
+
+    list = list->cdr;
+    while (list != NULL)
+    {
+        printf(" ");
+        car = evaluate(env, list->car);
+        printObject(&car);
+        list = list->cdr;
+    }
+    printf("\n");
+    return booleanObject(true);
 }
 
 Object define(Environment *env, List *list)
@@ -153,6 +209,8 @@ Object evaluateList(Environment *env, List *list)
     char *identifier = car.value.identifier;
     if (strcmp(identifier, "define") == 0)
         return define(env, list->cdr);
+    if (strcmp(identifier, "print") == 0)
+        return print(env, list->cdr);
 
     if (strcmp(identifier, "+") == 0)
         return add(env, list->cdr);
