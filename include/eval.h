@@ -1,7 +1,7 @@
 #ifndef EVAL_H
 #define EVAL_H
 
-#include "object.h"
+#include "parser.h"
 #include "environment.h"
 
 void printObject(Object *object);

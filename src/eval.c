@@ -5,19 +5,14 @@
 
 #include "eval.h"
 
-bool isPair(Object *object)
-{
-    if (object->kind != PAIR)
-        return false;
-    if (object->value.pair == NULL)
-        return false;
-
-    return isPair(&object->value.pair->cdr);
-}
-
 bool isList(Object *object)
 {
     return (object->kind == PAIR) && (object->value.pair == NULL || isList(&object->value.pair->cdr));
+}
+
+bool isPair(Object *object)
+{
+    return (object->kind == PAIR) && (object->value.pair != NULL) && !isList(&object->value.pair->cdr);
 }
 
 void printPair(Pair *pair)
@@ -130,6 +125,14 @@ Object print(Environment *env, Pair *args)
     }
     printf("\n");
     return booleanObject(true);
+}
+
+Object cons(Environment *env, Pair *args)
+{
+    Pair *pair = malloc(sizeof(Pair));
+    pair->car = evaluate(env, args->car);
+    pair->cdr = evaluate(env, args->cdr.value.pair->car);
+    return pairObject(pair);
 }
 
 Object define(Environment *env, Pair *args)
@@ -299,31 +302,35 @@ Object evaluatePair(Environment *env, Pair *pair)
 
     Object car = pair->car;
 
+    // TODO: Research if identifiers should be tokens for performance and cleaner evaluation
     // Check for default procedures
-    // TODO: Research for if identifiers should be tokens for performance and cleaner evaluation
     if (car.kind == IDENTIFIER)
     {
         char *identifier = car.value.identifier;
+
+        Pair *args = pair->cdr.value.pair;
+        if (strcmp(identifier, "cons") == 0)
+            return cons(env, args);
         if (strcmp(identifier, "define") == 0)
-            return define(env, pair->cdr.value.pair);
+            return define(env, args);
         if (strcmp(identifier, "lambda") == 0)
-            return lambda(pair->cdr.value.pair);
+            return lambda(args);
         if (strcmp(identifier, "print") == 0)
-            return print(env, pair->cdr.value.pair);
+            return print(env, args);
         if (strcmp(identifier, "quote") == 0)
-            return quote(pair->cdr.value.pair);
+            return quote(args);
 
         if (strcmp(identifier, "+") == 0)
-            return add(env, pair->cdr.value.pair);
+            return add(env, args);
         if (strcmp(identifier, "-") == 0)
-            return subtract(env, pair->cdr.value.pair);
+            return subtract(env, args);
         if (strcmp(identifier, "*") == 0)
-            return multiply(env, pair->cdr.value.pair);
+            return multiply(env, args);
         if (strcmp(identifier, "/") == 0)
-            return divide(env, pair->cdr.value.pair);
+            return divide(env, args);
 
         if (strcmp(identifier, "not") == 0)
-            return negation(env, pair->cdr.value.pair);
+            return negation(env, args);
     }
 
     car = evaluate(env, pair->car);
