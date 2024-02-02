@@ -40,6 +40,14 @@ Object numberObject(double number)
     return object;
 }
 
+Object procedureObject(Procedure procedure)
+{
+    Object object;
+    object.kind = PROCEDURE;
+    object.value.procedure = procedure;
+    return object;
+}
+
 Object stringObject(char *string)
 {
     Object object;

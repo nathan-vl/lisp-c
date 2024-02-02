@@ -3,6 +3,12 @@
 
 #include <stdbool.h>
 
+typedef struct Procedure
+{
+    struct List *parameters;
+    struct List *body;
+} Procedure;
+
 typedef enum ObjectKind
 {
     BOOLEAN,
@@ -10,6 +16,7 @@ typedef enum ObjectKind
     IDENTIFIER,
     LIST,
     NUMBER,
+    PROCEDURE,
     STRING,
 } ObjectKind;
 
@@ -19,6 +26,7 @@ typedef union ObjectValue
     char character;
     char *identifier;
     struct List *list;
+    struct Procedure procedure;
     double number;
     char *string;
 } ObjectValue;
@@ -35,20 +43,12 @@ typedef struct List
     struct List *cdr;
 } List;
 
-/*
-BOOLEAN,
-CHARACTER,
-IDENTIFIER,
-LIST,
-NUMBER,
-STRING,
-*/
-
 Object booleanObject(bool boolean);
 Object characterObject(char character);
 Object identifierObject(char *identifier);
 Object listObject(List *list);
 Object numberObject(double number);
+Object procedureObject(Procedure procedure);
 Object stringObject(char *string);
 
 #endif

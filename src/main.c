@@ -70,6 +70,21 @@ void interpreter()
     }
 }
 
+void freeObject(Object *object)
+{
+    switch (object->kind)
+    {
+    case STRING:
+        free(object->value.string);
+        break;
+    case IDENTIFIER:
+        free(object->value.identifier);
+        break;
+    default:
+        break;
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 1)
@@ -80,9 +95,9 @@ int main(int argc, char **argv)
     {
         char *fileContents = readFile(argv[1]);
 
-        Environment env;
-
         TokenLinkedList *tokens = parse(fileContents);
+        free(fileContents);
+
         ObjectLinkedList *objects = syntaxAnalyser(tokens);
         while (tokens != NULL)
         {
@@ -91,11 +106,18 @@ int main(int argc, char **argv)
             free(current);
         }
 
+        Environment env;
         while (objects != NULL)
         {
             Object objectEval = evaluate(&env, objects->value);
+            ObjectLinkedList *current = objects;
+
             objects = objects->next;
+
+            freeObject(&current->value);
+            free(current);
         }
+
         return -1;
     }
 
