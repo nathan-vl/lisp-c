@@ -9,9 +9,10 @@ typedef enum TokenType
     T_F,
     T_T,
 
-    // Parentheses
+    // Parentheses and quote (')
     T_OPEN_PAREN,
     T_CLOSE_PAREN,
+    T_QUOTE,
 
     // Identifiers and literals
     T_CHARACTER,

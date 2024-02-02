@@ -252,6 +252,10 @@ Token parseToken(ScannerStatus *status)
         status->source++;
         status->col++;
         return newToken(T_CLOSE_PAREN, ")");
+    case '\'':
+        status->source++;
+        status->col++;
+        return newToken(T_QUOTE, "'");
     case '"':
         return parseString(status);
     case '#':

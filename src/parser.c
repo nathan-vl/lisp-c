@@ -8,35 +8,10 @@ typedef struct SyntaxAnalyserStatus
     TokenLinkedList *current;
 } SyntaxAnalyserStatus;
 
-Object parseValue(SyntaxAnalyserStatus *status)
-{
-    Token token = status->current->token;
-    status->current = status->current->next;
-    switch (token.type)
-    {
-    case T_F:
-        return booleanObject(false);
-    case T_T:
-        return booleanObject(true);
-    case T_CHARACTER:
-        return characterObject(token.literal.value.character);
-    case T_IDENTIFIER:
-        return identifierObject(token.lexeme);
-    case T_NUMBER:
-        return numberObject(token.literal.value.number);
-    case T_STRING:
-        return stringObject(token.literal.value.string);
-    default:
-        // Error
-        break;
-    }
-}
-
 Object parseObject(SyntaxAnalyserStatus *status);
 
 List *parseList(SyntaxAnalyserStatus *status)
 {
-    status->current = status->current->next;
     if (status->current == NULL)
     {
         printf("Error. Expected closing ')'\n");
@@ -65,15 +40,41 @@ List *parseList(SyntaxAnalyserStatus *status)
     return list;
 }
 
+Object parseQuote(SyntaxAnalyserStatus *status)
+{
+    List *list = malloc(sizeof(List));
+    list->car = identifierObject("quote");
+    list->cdr = malloc(sizeof(List));
+    list->cdr->car = parseObject(status);
+    list->cdr->cdr = NULL;
+    return listObject(list);
+}
+
 Object parseObject(SyntaxAnalyserStatus *status)
 {
     Token token = status->current->token;
+    status->current = status->current->next;
     switch (token.type)
     {
+    case T_QUOTE:
+        return parseQuote(status);
     case T_OPEN_PAREN:
         return listObject(parseList(status));
+    case T_F:
+        return booleanObject(false);
+    case T_T:
+        return booleanObject(true);
+    case T_CHARACTER:
+        return characterObject(token.literal.value.character);
+    case T_IDENTIFIER:
+        return identifierObject(token.lexeme);
+    case T_NUMBER:
+        return numberObject(token.literal.value.number);
+    case T_STRING:
+        return stringObject(token.literal.value.string);
     default:
-        return parseValue(status);
+        // Error
+        break;
     }
 }
 

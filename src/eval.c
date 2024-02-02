@@ -126,6 +126,11 @@ Object define(Environment *env, List *list)
     return booleanObject(true);
 }
 
+Object quote(Environment *env, List *list)
+{
+    return list->car;
+}
+
 // TODO: Add enclosing environments to environments
 Object lambda(Environment *env, List *list)
 {
@@ -270,6 +275,8 @@ Object evaluateList(Environment *env, List *list)
             return lambda(env, list->cdr);
         if (strcmp(identifier, "print") == 0)
             return print(env, list->cdr);
+        if (strcmp(identifier, "quote") == 0)
+            return quote(env, list->cdr);
 
         if (strcmp(identifier, "+") == 0)
             return add(env, list->cdr);
