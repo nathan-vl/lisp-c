@@ -5,8 +5,8 @@
 
 typedef struct Procedure
 {
-    struct List *parameters;
-    struct List *body;
+    struct Pair *parameters;
+    struct Pair *body;
 } Procedure;
 
 typedef enum ObjectKind
@@ -14,7 +14,7 @@ typedef enum ObjectKind
     BOOLEAN,
     CHARACTER,
     IDENTIFIER,
-    LIST,
+    PAIR,
     NUMBER,
     PROCEDURE,
     STRING,
@@ -25,7 +25,7 @@ typedef union ObjectValue
     bool boolean;
     char character;
     char *identifier;
-    struct List *list;
+    struct Pair *pair;
     struct Procedure procedure;
     double number;
     char *string;
@@ -37,16 +37,16 @@ typedef struct Object
     ObjectValue value;
 } Object;
 
-typedef struct List
+typedef struct Pair
 {
     Object car;
-    struct List *cdr;
-} List;
+    Object cdr;
+} Pair;
 
 Object booleanObject(bool boolean);
 Object characterObject(char character);
 Object identifierObject(char *identifier);
-Object listObject(List *list);
+Object pairObject(struct Pair *pair);
 Object numberObject(double number);
 Object procedureObject(Procedure procedure);
 Object stringObject(char *string);

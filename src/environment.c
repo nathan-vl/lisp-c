@@ -43,7 +43,8 @@ void defineVariable(Environment *env, char *key, Object *value)
 
     while (node != NULL)
     {
-        if (strcmp(key, node->key) == 0) {
+        if (strcmp(key, node->key) == 0)
+        {
             printf("Error. Variable \"%s\" is already defined.\n", key);
         }
         previous = node;

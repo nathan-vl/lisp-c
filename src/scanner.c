@@ -232,6 +232,7 @@ Token parseHash(ScannerStatus *status)
         return token;
     default:
         lexicalError("Unrecognized character after '#'", status->line, status->col);
+        exit(-1);
     }
 }
 
@@ -286,6 +287,7 @@ Token parseToken(ScannerStatus *status)
         else
         {
             lexicalError("Character not recognized", status->line, status->col);
+            exit(-1);
         }
     }
 }

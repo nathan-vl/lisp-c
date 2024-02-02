@@ -10,7 +10,20 @@ typedef struct SyntaxAnalyserStatus
 
 Object parseObject(SyntaxAnalyserStatus *status);
 
-List *parseList(SyntaxAnalyserStatus *status)
+Pair *newPair(Object car, Object cdr)
+{
+    Pair *pair = malloc(sizeof(Pair));
+    pair->car = car;
+    pair->cdr = cdr;
+    return pair;
+}
+
+Object newPairObject(Object car, Object cdr)
+{
+    return pairObject(newPair(car, cdr));
+}
+
+Pair *parsePair(SyntaxAnalyserStatus *status)
 {
     if (status->current == NULL)
     {
@@ -24,30 +37,27 @@ List *parseList(SyntaxAnalyserStatus *status)
         return NULL;
     }
 
-    List *list = malloc(sizeof(List));
-    list->car = parseObject(status);
+    Pair *pair = newPair(parseObject(status), pairObject(NULL));
 
-    List *current = list;
+    Pair *current = pair;
     while (status->current->token.type != T_CLOSE_PAREN)
     {
-        current->cdr = malloc(sizeof(List));
-        current->cdr->car = parseObject(status);
-        current = current->cdr;
+        current->cdr = newPairObject(parseObject(status), pairObject(NULL));
+        current = current->cdr.value.pair;
     }
-    current->cdr = NULL;
     status->current = status->current->next;
 
-    return list;
+    return pair;
 }
 
 Object parseQuote(SyntaxAnalyserStatus *status)
 {
-    List *list = malloc(sizeof(List));
-    list->car = identifierObject("quote");
-    list->cdr = malloc(sizeof(List));
-    list->cdr->car = parseObject(status);
-    list->cdr->cdr = NULL;
-    return listObject(list);
+    Object car = identifierObject("quote");
+
+    Object obj = parseObject(status);
+    Object cdr = newPairObject(obj, pairObject(NULL));
+
+    return newPairObject(car, cdr);
 }
 
 Object parseObject(SyntaxAnalyserStatus *status)
@@ -59,7 +69,7 @@ Object parseObject(SyntaxAnalyserStatus *status)
     case T_QUOTE:
         return parseQuote(status);
     case T_OPEN_PAREN:
-        return listObject(parseList(status));
+        return pairObject(parsePair(status));
     case T_F:
         return booleanObject(false);
     case T_T:
@@ -73,8 +83,8 @@ Object parseObject(SyntaxAnalyserStatus *status)
     case T_STRING:
         return stringObject(token.literal.value.string);
     default:
-        // Error
-        break;
+        printf("Error. Unrecognized token.\n");
+        exit(-1);
     }
 }
 

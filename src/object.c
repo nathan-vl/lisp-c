@@ -24,11 +24,11 @@ Object identifierObject(char *identifier)
     return object;
 }
 
-Object listObject(List *list)
+Object pairObject(Pair *pair)
 {
     Object object;
-    object.kind = LIST;
-    object.value.list = list;
+    object.kind = PAIR;
+    object.value.pair = pair;
     return object;
 }
 

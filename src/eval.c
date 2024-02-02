@@ -5,19 +5,43 @@
 
 #include "eval.h"
 
-void printList(List *list)
+bool isPair(Object *object)
+{
+    if (object->kind != PAIR)
+        return false;
+    if (object->value.pair == NULL)
+        return false;
+
+    return isPair(&object->value.pair->cdr);
+}
+
+bool isList(Object *object)
+{
+    return (object->kind == PAIR) && (object->value.pair == NULL || isList(&object->value.pair->cdr));
+}
+
+void printPair(Pair *pair)
+{
+    printf("(");
+    printObject(&pair->car);
+    printf(" . ");
+    printObject(&pair->cdr);
+    printf(")");
+}
+
+void printList(Pair *list)
 {
     printf("(");
     if (list != NULL)
     {
         printObject(&list->car);
 
-        list = list->cdr;
+        list = list->cdr.value.pair;
         while (list != NULL)
         {
             printf(" ");
             printObject(&list->car);
-            list = list->cdr;
+            list = list->cdr.value.pair;
         }
     }
     printf(")");
@@ -27,8 +51,15 @@ void printObject(Object *object)
 {
     switch (object->kind)
     {
-    case LIST:
-        printList(object->value.list);
+    case PAIR:
+        if (isPair(object))
+        {
+            printPair(object->value.pair);
+        }
+        else
+        {
+            printList(object->value.pair);
+        }
         break;
     case BOOLEAN:
         printf("%s", object->value.boolean ? "#t" : "#f");
@@ -84,155 +115,159 @@ double getNumber(Environment *env, Object *object)
     return eval.value.number;
 }
 
-Object print(Environment *env, List *list)
+Object print(Environment *env, Pair *args)
 {
-    Object car = evaluate(env, list->car);
+    Object car = evaluate(env, args->car);
     printObject(&car);
 
-    list = list->cdr;
-    while (list != NULL)
+    args = args->cdr.value.pair;
+    while (args != NULL)
     {
         printf(" ");
-        car = evaluate(env, list->car);
+        car = evaluate(env, args->car);
         printObject(&car);
-        list = list->cdr;
+        args = args->cdr.value.pair;
     }
     printf("\n");
     return booleanObject(true);
 }
 
-Object define(Environment *env, List *list)
+Object define(Environment *env, Pair *args)
 {
-    if (list->car.kind != IDENTIFIER)
+    if (args->car.kind != IDENTIFIER)
     {
         printf("Error. Expected identifier.\n");
         exit(-1);
     }
 
-    if (list->cdr == NULL)
-    {
-        printf("Error. Expected identifier value.\n");
-        exit(-1);
-    }
+    // TODO: Check empty identifier value
+    // if (args.cdr == NULL)
+    // {
+    //     printf("Error. Expected identifier value.\n");
+    //     exit(-1);
+    // }
 
-    if (list->cdr->cdr != NULL)
+    // Check if cdr is empty
+    if (args->cdr.kind == PAIR /* && args->cdr.value.pair->cdr != NULL */)
     {
         printf("Error. Expected exactly 2 arguments.\n");
         exit(-1);
     }
 
-    char *identifier = list->car.value.identifier;
-    defineVariable(env, identifier, &list->cdr->car);
+    char *identifier = args->car.value.identifier;
+    defineVariable(env, identifier, &args->cdr);
     return booleanObject(true);
 }
 
-Object quote(Environment *env, List *list)
+Object quote(Pair *pair)
 {
-    return list->car;
+    return pair->car;
 }
 
 // TODO: Add enclosing environments to environments
-Object lambda(Environment *env, List *list)
+Object lambda(Pair *args)
 {
     // TODO: Check if args are all symbols
-    if (list->car.kind != LIST)
+    if (!isList(&args->car))
     {
         printf("Error. Args should be a list.\n");
         exit(-1);
     }
 
     // TODO: Check if params are only args and body
-    if (list->cdr->car.kind != LIST)
+    if (!isList(&args->cdr))
     {
         printf("Error. Body should be a list.\n");
         exit(-1);
     }
 
     Procedure procedure;
-    procedure.parameters = list->car.value.list;
-    procedure.body = list->cdr->car.value.list;
+    procedure.parameters = args->car.value.pair;
+    procedure.body = args->cdr.value.pair;
     return procedureObject(procedure);
 }
 
-Object add(Environment *env, List *list)
+Object add(Environment *env, Pair *args)
 {
     double result = 0;
-    while (list != NULL)
+    while (args != NULL)
     {
-        Object value = evaluate(env, list->car);
+        Object value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result += number;
-        list = list->cdr;
+        args = args->cdr.value.pair;
     }
     return numberObject(result);
 }
 
-Object subtract(Environment *env, List *list)
+Object subtract(Environment *env, Pair *args)
 {
-    Object eval = evaluate(env, list->car);
+    Object eval = evaluate(env, args->car);
     double result = getNumber(env, &eval);
-    list = list->cdr;
-    while (list != NULL)
+    args = args->cdr.value.pair;
+    while (args != NULL)
     {
-        Object value = evaluate(env, list->car);
+        Object value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result -= number;
-        list = list->cdr;
+        args = args->cdr.value.pair;
     }
     return numberObject(result);
 }
 
-Object multiply(Environment *env, List *list)
+Object multiply(Environment *env, Pair *args)
 {
     double result = 1;
-    while (list != NULL)
+    while (args != NULL)
     {
-        Object value = evaluate(env, list->car);
+        Object value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result *= number;
-        list = list->cdr;
+        args = args->cdr.value.pair;
     }
     return numberObject(result);
 }
 
-Object divide(Environment *env, List *list)
+Object divide(Environment *env, Pair *args)
 {
-    Object eval = evaluate(env, list->car);
+    Object eval = evaluate(env, args->car);
     double result = getNumber(env, &eval);
-    list = list->cdr;
-    while (list != NULL)
+    args = args->cdr.value.pair;
+    while (args != NULL)
     {
-        Object value = evaluate(env, list->car);
+        Object value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result /= number;
-        list = list->cdr;
+        args = args->cdr.value.pair;
     }
     return numberObject(result);
 }
 
-Object negation(Environment *env, List *list)
+Object negation(Environment *env, Pair *args)
 {
-    if (list->cdr != NULL)
-    {
-        printf("Error. Function \"not\" expects one argument, but given more.\n");
-        exit(-1);
-    }
+    // check empty list
+    // if (args->cdr != NULL)
+    // {
+    //     printf("Error. Function \"not\" expects one argument, but given more.\n");
+    //     exit(-1);
+    // }
 
-    return booleanObject(!isTruthy(env, &list->car));
+    return booleanObject(!isTruthy(env, &args->car));
 }
 
-size_t listLength(List *list)
+size_t listLength(Pair *pair)
 {
     size_t length = 0;
-    while (list != NULL)
+    while (pair != NULL)
     {
         length++;
-        list = list->cdr;
+        pair = pair->cdr.value.pair;
     }
     return length;
 }
 
-Object executeProcedure(Environment *env, Procedure procedure, List *args)
+// TODO: Add enclosing environment to procedure
+Object executeProcedure(Procedure procedure, Pair *args)
 {
     size_t paramsLength = listLength(procedure.parameters);
     size_t argsLength = listLength(args);
@@ -244,25 +279,25 @@ Object executeProcedure(Environment *env, Procedure procedure, List *args)
     }
 
     Environment innerEnv;
-    List *parameters = procedure.parameters;
+    Pair *parameters = procedure.parameters;
     while (args != NULL)
     {
         defineVariable(&innerEnv, parameters->car.value.identifier, &args->car);
-        parameters = parameters->cdr;
-        args = args->cdr;
+        parameters = parameters->cdr.value.pair;
+        args = args->cdr.value.pair;
     }
 
-    return evaluate(&innerEnv, listObject(procedure.body));
+    return evaluate(&innerEnv, pairObject(procedure.body));
 }
 
-Object evaluateList(Environment *env, List *list)
+Object evaluatePair(Environment *env, Pair *pair)
 {
-    if (list == NULL)
+    if (pair == NULL)
     {
-        return listObject(list);
+        return pairObject(pair);
     }
 
-    Object car = list->car;
+    Object car = pair->car;
 
     // Check for default procedures
     // TODO: Research for if identifiers should be tokens for performance and cleaner evaluation
@@ -270,43 +305,44 @@ Object evaluateList(Environment *env, List *list)
     {
         char *identifier = car.value.identifier;
         if (strcmp(identifier, "define") == 0)
-            return define(env, list->cdr);
+            return define(env, pair->cdr.value.pair);
         if (strcmp(identifier, "lambda") == 0)
-            return lambda(env, list->cdr);
+            return lambda(pair->cdr.value.pair);
         if (strcmp(identifier, "print") == 0)
-            return print(env, list->cdr);
+            return print(env, pair->cdr.value.pair);
         if (strcmp(identifier, "quote") == 0)
-            return quote(env, list->cdr);
+            return quote(pair->cdr.value.pair);
 
         if (strcmp(identifier, "+") == 0)
-            return add(env, list->cdr);
+            return add(env, pair->cdr.value.pair);
         if (strcmp(identifier, "-") == 0)
-            return subtract(env, list->cdr);
+            return subtract(env, pair->cdr.value.pair);
         if (strcmp(identifier, "*") == 0)
-            return multiply(env, list->cdr);
+            return multiply(env, pair->cdr.value.pair);
         if (strcmp(identifier, "/") == 0)
-            return divide(env, list->cdr);
+            return divide(env, pair->cdr.value.pair);
 
         if (strcmp(identifier, "not") == 0)
-            return negation(env, list->cdr);
+            return negation(env, pair->cdr.value.pair);
     }
 
-    car = evaluate(env, list->car);
+    car = evaluate(env, pair->car);
     if (car.kind == PROCEDURE)
     {
         Procedure procedure = car.value.procedure;
-        return executeProcedure(env, procedure, list->cdr);
+        return executeProcedure(procedure, pair->cdr.value.pair);
     }
 
     printf("Error. Could not call value\n");
+    exit(-1);
 }
 
 Object evaluate(Environment *env, Object object)
 {
-    if (object.kind == LIST)
+    if (object.kind == PAIR)
     {
-        List *list = object.value.list;
-        return evaluateList(env, list);
+        Pair *pair = object.value.pair;
+        return evaluatePair(env, pair);
     }
 
     if (object.kind == IDENTIFIER)

@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         Environment env;
         while (objects != NULL)
         {
-            Object objectEval = evaluate(&env, objects->value);
+            evaluate(&env, objects->value);
             ObjectLinkedList *current = objects;
 
             objects = objects->next;
