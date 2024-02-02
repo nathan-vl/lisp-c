@@ -5,6 +5,15 @@
 
 #include "eval.h"
 
+void checkArityError(size_t expected, size_t actual)
+{
+    if (expected != actual)
+    {
+        printf("Error. Arity difference in procedure. Expected %ld but got %ld.\n", expected, actual);
+        exit(-1);
+    }
+}
+
 bool isList(Object *object)
 {
     return (object->kind == PAIR) && (object->value.pair == NULL || isList(&object->value.pair->cdr));
@@ -135,6 +144,17 @@ Object cons(Environment *env, Pair *args)
     return pairObject(pair);
 }
 
+size_t listLength(Pair *pair)
+{
+    size_t length = 0;
+    while (pair != NULL)
+    {
+        length++;
+        pair = pair->cdr.value.pair;
+    }
+    return length;
+}
+
 Object define(Environment *env, Pair *args)
 {
     if (args->car.kind != IDENTIFIER)
@@ -143,22 +163,10 @@ Object define(Environment *env, Pair *args)
         exit(-1);
     }
 
-    // TODO: Check empty identifier value
-    // if (args.cdr == NULL)
-    // {
-    //     printf("Error. Expected identifier value.\n");
-    //     exit(-1);
-    // }
-
-    // Check if cdr is empty
-    if (args->cdr.kind == PAIR /* && args->cdr.value.pair->cdr != NULL */)
-    {
-        printf("Error. Expected exactly 2 arguments.\n");
-        exit(-1);
-    }
+    checkArityError(2, listLength(args));
 
     char *identifier = args->car.value.identifier;
-    defineVariable(env, identifier, &args->cdr);
+    defineVariable(env, identifier, &args->cdr.value.pair->car);
     return booleanObject(true);
 }
 
@@ -248,25 +256,9 @@ Object divide(Environment *env, Pair *args)
 
 Object negation(Environment *env, Pair *args)
 {
-    // check empty list
-    // if (args->cdr != NULL)
-    // {
-    //     printf("Error. Function \"not\" expects one argument, but given more.\n");
-    //     exit(-1);
-    // }
+    checkArityError(1, listLength(args));
 
     return booleanObject(!isTruthy(env, &args->car));
-}
-
-size_t listLength(Pair *pair)
-{
-    size_t length = 0;
-    while (pair != NULL)
-    {
-        length++;
-        pair = pair->cdr.value.pair;
-    }
-    return length;
 }
 
 // TODO: Add enclosing environment to procedure
@@ -275,11 +267,7 @@ Object executeProcedure(Procedure procedure, Pair *args)
     size_t paramsLength = listLength(procedure.parameters);
     size_t argsLength = listLength(args);
 
-    if (paramsLength != argsLength)
-    {
-        printf("Error. Arity difference in procedure. Expected %ld but got %ld.\n", paramsLength, argsLength);
-        exit(-1);
-    }
+    checkArityError(paramsLength, argsLength);
 
     Environment innerEnv;
     Pair *parameters = procedure.parameters;
@@ -302,7 +290,6 @@ Object evaluatePair(Environment *env, Pair *pair)
 
     Object car = pair->car;
 
-    // TODO: Research if identifiers should be tokens for performance and cleaner evaluation
     // Check for default procedures
     if (car.kind == IDENTIFIER)
     {
