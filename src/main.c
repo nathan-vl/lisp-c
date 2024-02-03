@@ -40,6 +40,7 @@ void interpreter()
     char line[1024];
 
     Environment env;
+    env.enclosingEnvironment = NULL;
 
     for (;;)
     {
@@ -107,6 +108,7 @@ int main(int argc, char **argv)
         }
 
         Environment env;
+        env.enclosingEnvironment = NULL;
         while (objects != NULL)
         {
             evaluate(&env, objects->value);

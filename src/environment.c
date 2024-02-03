@@ -32,6 +32,11 @@ Object *getVariable(Environment *env, char *key)
         node = node->next;
     }
 
+    if (env->enclosingEnvironment != NULL)
+    {
+        return getVariable(env->enclosingEnvironment, key);
+    }
+
     return NULL;
 }
 

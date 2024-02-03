@@ -175,7 +175,6 @@ Object quote(Pair *pair)
     return pair->car;
 }
 
-// TODO: Add enclosing environments to environments
 Object lambda(Pair *args)
 {
     checkArityError(2, listLength(args));
@@ -281,14 +280,15 @@ Object negation(Environment *env, Pair *args)
     return booleanObject(!isTruthy(env, &args->car));
 }
 
-// TODO: Add enclosing environment to procedure
-Object executeProcedure(Procedure procedure, Pair *args)
+Object executeProcedure(Environment *env, Procedure procedure, Pair *args)
 {
     size_t argsLength = listLength(args);
 
     checkArityError(procedure.parametersLength, argsLength);
 
     Environment innerEnv;
+    innerEnv.enclosingEnvironment = env;
+
     Pair *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
     {
@@ -342,7 +342,7 @@ Object evaluatePair(Environment *env, Pair *pair)
     if (car.kind == PROCEDURE)
     {
         Procedure procedure = car.value.procedure;
-        return executeProcedure(procedure, pair->cdr.value.pair);
+        return executeProcedure(env, procedure, pair->cdr.value.pair);
     }
 
     printf("Error. Could not call value\n");

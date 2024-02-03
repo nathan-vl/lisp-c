@@ -15,6 +15,7 @@ typedef struct VariableNode
 
 typedef struct Environment
 {
+    struct Environment *enclosingEnvironment;
     VariableNode *nodes[HASH_SIZE];
 } Environment;
 
