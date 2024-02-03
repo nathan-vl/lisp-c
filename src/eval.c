@@ -178,14 +178,14 @@ Object quote(Pair *pair)
 // TODO: Add enclosing environments to environments
 Object lambda(Pair *args)
 {
-    // TODO: Check if args are all symbols
+    checkArityError(2, listLength(args));
+
     if (!isList(&args->car))
     {
         printf("Error. Args should be a list.\n");
         exit(-1);
     }
 
-    // TODO: Check if params are only args and body
     if (!isList(&args->cdr))
     {
         printf("Error. Body should be a list.\n");
@@ -193,8 +193,28 @@ Object lambda(Pair *args)
     }
 
     Procedure procedure;
-    procedure.parameters = args->car.value.pair;
-    procedure.body = args->cdr.value.pair;
+    procedure.parametersLength = listLength(args->car.value.pair);
+    if (procedure.parametersLength == 0)
+    {
+        procedure.parameters = NULL;
+    }
+    else
+    {
+        procedure.parameters = malloc(sizeof(char *) * procedure.parametersLength);
+        Pair *currentParam = args->car.value.pair;
+        for (size_t i = 0; i < procedure.parametersLength; i++)
+        {
+            Object car = currentParam->car;
+            if (car.kind != IDENTIFIER)
+            {
+                printf("Error. Expected identifier.\n");
+            }
+            procedure.parameters[i] = currentParam->car.value.identifier;
+            currentParam = currentParam->cdr.value.pair;
+        }
+    }
+
+    procedure.body = args->cdr.value.pair->car.value.pair;
     return procedureObject(procedure);
 }
 
@@ -264,18 +284,16 @@ Object negation(Environment *env, Pair *args)
 // TODO: Add enclosing environment to procedure
 Object executeProcedure(Procedure procedure, Pair *args)
 {
-    size_t paramsLength = listLength(procedure.parameters);
     size_t argsLength = listLength(args);
 
-    checkArityError(paramsLength, argsLength);
+    checkArityError(procedure.parametersLength, argsLength);
 
     Environment innerEnv;
-    Pair *parameters = procedure.parameters;
-    while (args != NULL)
+    Pair *current = args;
+    for (size_t i = 0; i < procedure.parametersLength; i++)
     {
-        defineVariable(&innerEnv, parameters->car.value.identifier, &args->car);
-        parameters = parameters->cdr.value.pair;
-        args = args->cdr.value.pair;
+        defineVariable(&innerEnv, procedure.parameters[i], &current->car);
+        current = current->cdr.value.pair;
     }
 
     return evaluate(&innerEnv, pairObject(procedure.body));

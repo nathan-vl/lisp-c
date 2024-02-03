@@ -2,10 +2,12 @@
 #define OBJECT_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct Procedure
 {
-    struct Pair *parameters;
+    char **parameters;
+    size_t parametersLength;
     struct Pair *body;
 } Procedure;
 
