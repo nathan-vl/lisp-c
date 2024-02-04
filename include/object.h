@@ -18,6 +18,7 @@ typedef enum ObjectKind
     IDENTIFIER,
     PAIR,
     NUMBER,
+    PRIMITIVE_PROCEDURE,
     PROCEDURE,
     STRING,
 } ObjectKind;
@@ -29,6 +30,7 @@ typedef union ObjectValue
     char *identifier;
     struct Pair *pair;
     struct Procedure procedure;
+    void *primitiveProcedure; // Points to function type : Object procedure(Environment*, Pair*)
     double number;
     char *string;
 } ObjectValue;

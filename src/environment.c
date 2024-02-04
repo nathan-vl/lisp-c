@@ -11,7 +11,7 @@ size_t hash(char *key)
     int i = 1;
     while (key[0] != '\0')
     {
-        hashedKey += (key[0] * i) % HASH_SIZE;
+        hashedKey = (hashedKey + key[0] * i) % HASH_SIZE;
         i++;
         key++;
     }
@@ -27,7 +27,7 @@ Object *getVariable(Environment *env, char *key)
     {
         if (strcmp(key, node->key) == 0)
         {
-            return node->value;
+            return &node->value;
         }
         node = node->next;
     }
@@ -40,21 +40,22 @@ Object *getVariable(Environment *env, char *key)
     return NULL;
 }
 
-void defineVariable(Environment *env, char *key, Object *value)
+void defineVariable(Environment *env, char *key, Object value)
 {
     size_t index = hash(key);
     VariableNode *node = env->nodes[index];
     VariableNode *previous = NULL;
 
-    while (node != NULL)
+    while (node != NULL && strcmp(key, node->key) != 0)
     {
-        if (strcmp(key, node->key) == 0)
-        {
-            printf("Error. Variable \"%s\" is already defined.\n", key);
-        }
         previous = node;
         node = node->next;
     }
+
+    // TODO: Free previous object
+    // if (strcmp(key, node->key) == 0)
+    // {
+    // }
 
     VariableNode *newNode = malloc(sizeof(VariableNode));
     newNode->key = key;

@@ -5,21 +5,21 @@
 
 #define HASH_SIZE 20
 
+typedef struct Environment
+{
+    struct Environment *enclosingEnvironment;
+    struct VariableNode *nodes[HASH_SIZE];
+} Environment;
+
 typedef struct VariableNode
 {
     char *key;
-    Object *value;
+    Object value;
 
     struct VariableNode *next;
 } VariableNode;
 
-typedef struct Environment
-{
-    struct Environment *enclosingEnvironment;
-    VariableNode *nodes[HASH_SIZE];
-} Environment;
-
 Object *getVariable(Environment *env, char *key);
-void defineVariable(Environment *env, char *key, Object *value);
+void defineVariable(Environment *env, char *key, Object value);
 
 #endif

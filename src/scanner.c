@@ -256,7 +256,7 @@ Token parseToken(ScannerStatus *status)
     case '\'':
         status->source++;
         status->col++;
-        return newToken(T_QUOTE, "'");
+        return newToken(T_APOSTROPHE, "'");
     case '"':
         return parseString(status);
     case '#':

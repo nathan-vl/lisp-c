@@ -6,7 +6,7 @@ RELEASE_FLAGS = -O3
 OUT_OBJ = app
 
 BUILD = build
-SOURCES = $(wildcard src/*.c)
+SOURCES = $(shell find . -name "*.c")
 
 $(OUT_OBJ):
 	mkdir -p $(BUILD)

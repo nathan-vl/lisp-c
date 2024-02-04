@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "parser.h"
-#include "environment.h"
 #include "eval.h"
+#include "primitiveProcedure.h"
 
 char *readFile(char *path)
 {
@@ -41,6 +40,8 @@ void interpreter()
 
     Environment env;
     env.enclosingEnvironment = NULL;
+
+    loadPrimitiveProcedures(&env);
 
     for (;;)
     {
@@ -109,6 +110,9 @@ int main(int argc, char **argv)
 
         Environment env;
         env.enclosingEnvironment = NULL;
+
+        loadPrimitiveProcedures(&env);
+
         while (objects != NULL)
         {
             evaluate(&env, objects->value);

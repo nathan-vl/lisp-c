@@ -66,7 +66,7 @@ Object parseObject(SyntaxAnalyserStatus *status)
     status->current = status->current->next;
     switch (token.type)
     {
-    case T_QUOTE:
+    case T_APOSTROPHE:
         return parseQuote(status);
     case T_OPEN_PAREN:
         return pairObject(parsePair(status));
