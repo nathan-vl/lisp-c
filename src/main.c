@@ -103,44 +103,50 @@ void freeObject(struct Object *object)
     }
 }
 
+void parseFile(char *path)
+{
+    char *fileContents = readFile(path);
+
+    struct TokenLinkedList *tokens = parse(fileContents);
+    free(fileContents);
+
+    struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
+    while (tokens != NULL)
+    {
+        struct TokenLinkedList *current = tokens;
+        tokens = tokens->next;
+        free(current);
+    }
+
+    struct Environment env;
+    env.enclosingEnvironment = NULL;
+
+    loadPrimitiveProcedures(&env);
+
+    while (objects != NULL)
+    {
+        evaluate(&env, objects->value);
+        struct ObjectLinkedList *current = objects;
+
+        objects = objects->next;
+
+        freeObject(&current->value);
+        free(current);
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 1)
     {
         interpreter();
+        return 0;
     }
-    else if (argc == 2)
+
+    if (argc == 2)
     {
-        char *fileContents = readFile(argv[1]);
-
-        struct TokenLinkedList *tokens = parse(fileContents);
-        free(fileContents);
-
-        struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
-        while (tokens != NULL)
-        {
-            struct TokenLinkedList *current = tokens;
-            tokens = tokens->next;
-            free(current);
-        }
-
-        struct Environment env;
-        env.enclosingEnvironment = NULL;
-
-        loadPrimitiveProcedures(&env);
-
-        while (objects != NULL)
-        {
-            evaluate(&env, objects->value);
-            struct ObjectLinkedList *current = objects;
-
-            objects = objects->next;
-
-            freeObject(&current->value);
-            free(current);
-        }
-
-        return -1;
+        parseFile(argv[1]);
+        return 0;
     }
 
     return 0;
