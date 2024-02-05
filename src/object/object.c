@@ -119,6 +119,27 @@ void printList(struct Pair *list)
     printf(")");
 }
 
+void printProcedure(struct Procedure procedure)
+{
+    printf("(lambda ");
+
+    // Identifiers
+    printf("(");
+    if (procedure.parametersLength > 0)
+    {
+        printf("%s", procedure.parameters[0]);
+    }
+    for (size_t i = 1; i < procedure.parametersLength; i++)
+    {
+        printf(" %s", procedure.parameters[i]);
+    }
+    printf(") ");
+
+    printList(procedure.body);
+
+    printf(")");
+}
+
 void printObject(struct Object *object)
 {
     switch (object->kind)
@@ -146,8 +167,10 @@ void printObject(struct Object *object)
         printf("%f", object->value.number);
         break;
     case PROCEDURE:
+        printProcedure(object->value.procedure);
+        break;
     case PRIMITIVE_PROCEDURE:
-        printf("<proc>");
+        printf("<primitive procedure>");
         break;
     case STRING:
         printf("\"%s\"", object->value.string);
