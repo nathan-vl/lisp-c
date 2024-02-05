@@ -1,5 +1,4 @@
-#ifndef DATA_TYPES_H
-#define DATA_TYPES_H
+#pragma once
 
 #include "literal.h"
 
@@ -43,5 +42,3 @@ struct TokenLinkedList
     struct Token token;
     struct TokenLinkedList *next;
 };
-
-#endif

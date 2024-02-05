@@ -1,5 +1,4 @@
-#ifndef STD_H
-#define STD_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,5 +22,3 @@ struct Object add(struct Environment *env, struct Pair *args);
 struct Object subtract(struct Environment *env, struct Pair *args);
 struct Object multiply(struct Environment *env, struct Pair *args);
 struct Object divide(struct Environment *env, struct Pair *args);
-
-#endif

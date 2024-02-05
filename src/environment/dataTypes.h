@@ -1,5 +1,4 @@
-#ifndef ENVIRONMENT_DATA_TYPES_H
-#define ENVIRONMENT_DATA_TYPES_H
+#pragma once
 
 #include "object.h"
 
@@ -18,5 +17,3 @@ struct VariableNode
 
     struct VariableNode *next;
 };
-
-#endif

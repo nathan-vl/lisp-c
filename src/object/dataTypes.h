@@ -1,5 +1,4 @@
-#ifndef OBJECT_DATATYPES_H
-#define OBJECT_DATATYPES_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -46,5 +45,3 @@ struct Pair
     struct Object car;
     struct Object cdr;
 };
-
-#endif

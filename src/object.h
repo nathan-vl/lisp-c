@@ -1,5 +1,4 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -19,5 +18,3 @@ bool isTruthy(struct Object *object);
 bool isNumber(struct Object *object);
 bool isList(struct Object *object);
 bool isPair(struct Object *object);
-
-#endif

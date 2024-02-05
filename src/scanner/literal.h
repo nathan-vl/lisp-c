@@ -1,5 +1,4 @@
-#ifndef LITERAL_H
-#define LITERAL_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -29,5 +28,3 @@ struct Literal newStringLiteral(char *string);
 struct Literal newNumberLiteral(double number);
 struct Literal newFalseLiteral();
 struct Literal newTrueLiteral();
-
-#endif
