@@ -1,7 +1,8 @@
-#include "dataTypes.h"
-
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "object.h"
 
 struct Object booleanObject(bool boolean)
 {

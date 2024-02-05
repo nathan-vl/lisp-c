@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dataTypes.h"
+#include "environment.h"
 
 size_t hash(char *key)
 {

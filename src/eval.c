@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../object.h"
-#include "../environment.h"
+#include "object.h"
+#include "environment.h"
 
 struct Object evaluate(struct Environment *env, struct Object object);
 

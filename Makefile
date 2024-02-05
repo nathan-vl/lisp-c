@@ -1,5 +1,5 @@
 C = gcc
-INCLUDES = -I src \
+INCLUDES = -I include \
 	-I src/parser \
 	-I src/scanner \
 	-I src/std

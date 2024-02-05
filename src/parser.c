@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "dataTypes.h"
+#include "parser.h"
 #include "scanner.h"
 
 struct SyntaxAnalyserStatus
