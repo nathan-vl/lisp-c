@@ -1,9 +1,9 @@
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef DATA_TYPES_H
+#define DATA_TYPES_H
 
 #include "literal.h"
 
-typedef enum TokenType
+enum TokenType
 {
     // False (f) and true (t)
     T_F,
@@ -22,29 +22,26 @@ typedef enum TokenType
 
     T_WHITESPACE,
     T_EOF,
-} TokenType;
+};
 
-typedef struct ScannerStatus
+struct ScannerStatus
 {
     char *source;
     int line;
     int col;
-} ScannerStatus;
+};
 
-typedef struct Token
+struct Token
 {
-    TokenType type;
+    enum TokenType type;
     char *lexeme;
-    Literal literal;
-} Token;
+    struct Literal literal;
+};
 
-typedef struct TokenLinkedList
+struct TokenLinkedList
 {
-    Token token;
+    struct Token token;
     struct TokenLinkedList *next;
-} TokenLinkedList;
-
-TokenLinkedList *parse(char *source);
-void freeToken(Token token);
+};
 
 #endif

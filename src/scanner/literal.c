@@ -1,32 +1,32 @@
 #include "literal.h"
 
-Literal newStringLiteral(char *string)
+struct Literal newStringLiteral(char *string)
 {
-    Literal literal;
+    struct Literal literal;
     literal.kind = L_STRING;
     literal.value.string = string;
     return literal;
 }
 
-Literal newNumberLiteral(double number)
+struct Literal newNumberLiteral(double number)
 {
-    Literal literal;
+    struct Literal literal;
     literal.kind = L_NUMBER;
     literal.value.number = number;
     return literal;
 }
 
-Literal newFalseLiteral()
+struct Literal newFalseLiteral()
 {
-    Literal literal;
+    struct Literal literal;
     literal.kind = L_BOOLEAN;
     literal.value.boolean = false;
     return literal;
 }
 
-Literal newTrueLiteral()
+struct Literal newTrueLiteral()
 {
-    Literal literal;
+    struct Literal literal;
     literal.kind = L_BOOLEAN;
     literal.value.boolean = true;
     return literal;

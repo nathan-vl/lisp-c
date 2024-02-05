@@ -2,7 +2,23 @@
 #include <stdlib.h>
 
 #include "eval.h"
-#include "primitiveProcedure.h"
+#include "std.h"
+
+void loadPrimitiveProcedures(struct Environment *env)
+{
+    defineVariable(env, "cons", primitiveProcedureObject(cons));
+    defineVariable(env, "define", primitiveProcedureObject(define));
+    defineVariable(env, "lambda", primitiveProcedureObject(lambda));
+    defineVariable(env, "print", primitiveProcedureObject(print));
+    defineVariable(env, "quote", primitiveProcedureObject(quote));
+
+    defineVariable(env, "+", primitiveProcedureObject(add));
+    defineVariable(env, "-", primitiveProcedureObject(subtract));
+    defineVariable(env, "*", primitiveProcedureObject(multiply));
+    defineVariable(env, "/", primitiveProcedureObject(divide));
+
+    defineVariable(env, "not", primitiveProcedureObject(negation));
+}
 
 char *readFile(char *path)
 {
@@ -38,7 +54,7 @@ void interpreter()
 {
     char line[1024];
 
-    Environment env;
+    struct Environment env;
     env.enclosingEnvironment = NULL;
 
     loadPrimitiveProcedures(&env);
@@ -52,18 +68,18 @@ void interpreter()
             break;
         }
 
-        TokenLinkedList *tokens = parse(line);
-        ObjectLinkedList *objects = syntaxAnalyser(tokens);
+        struct TokenLinkedList *tokens = parse(line);
+        struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
         while (tokens != NULL)
         {
-            TokenLinkedList *current = tokens;
+            struct TokenLinkedList *current = tokens;
             tokens = tokens->next;
             free(current);
         }
 
         while (objects != NULL)
         {
-            Object objectEval = evaluate(&env, objects->value);
+            struct Object objectEval = evaluate(&env, objects->value);
             printObject(&objectEval);
             printf("\n");
 
@@ -72,7 +88,7 @@ void interpreter()
     }
 }
 
-void freeObject(Object *object)
+void freeObject(struct Object *object)
 {
     switch (object->kind)
     {
@@ -97,18 +113,18 @@ int main(int argc, char **argv)
     {
         char *fileContents = readFile(argv[1]);
 
-        TokenLinkedList *tokens = parse(fileContents);
+        struct TokenLinkedList *tokens = parse(fileContents);
         free(fileContents);
 
-        ObjectLinkedList *objects = syntaxAnalyser(tokens);
+        struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
         while (tokens != NULL)
         {
-            TokenLinkedList *current = tokens;
+            struct TokenLinkedList *current = tokens;
             tokens = tokens->next;
             free(current);
         }
 
-        Environment env;
+        struct Environment env;
         env.enclosingEnvironment = NULL;
 
         loadPrimitiveProcedures(&env);
@@ -116,7 +132,7 @@ int main(int argc, char **argv)
         while (objects != NULL)
         {
             evaluate(&env, objects->value);
-            ObjectLinkedList *current = objects;
+            struct ObjectLinkedList *current = objects;
 
             objects = objects->next;
 

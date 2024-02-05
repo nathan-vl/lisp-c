@@ -3,23 +3,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "eval.h"
-#include "error.h"
-#include "util.h"
+#include "../object.h"
+#include "../environment.h"
 
-Object executeProcedure(Environment *env, Procedure procedure, Pair *args)
+struct Object evaluate(struct Environment *env, struct Object object);
+
+void checkArityError(size_t expected, size_t actual)
+{
+    if (expected != actual)
+    {
+        printf("Error. Arity difference in procedure. Expected %ld but got %ld.\n", expected, actual);
+        exit(-1);
+    }
+}
+
+struct Object executeProcedure(struct Environment *env, struct Procedure procedure, struct Pair *args)
 {
     size_t argsLength = listLength(args);
 
     checkArityError(procedure.parametersLength, argsLength);
 
-    Environment innerEnv;
+    struct Environment innerEnv;
     innerEnv.enclosingEnvironment = env;
 
-    Pair *current = args;
+    struct Pair *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
     {
-        Object object = current->car;
+        struct Object object = current->car;
         defineVariable(&innerEnv, procedure.parameters[i], object);
         current = current->cdr.value.pair;
     }
@@ -27,21 +37,21 @@ Object executeProcedure(Environment *env, Procedure procedure, Pair *args)
     return evaluate(&innerEnv, pairObject(procedure.body));
 }
 
-Object evaluatePair(struct Environment *env, struct Pair *pair)
+struct Object evaluatePair(struct Environment *env, struct Pair *pair)
 {
     if (pair == NULL)
     {
         return pairObject(pair);
     }
 
-    Object object = evaluate(env, pair->car);
+    struct Object object = evaluate(env, pair->car);
     switch (object.kind)
     {
     case PRIMITIVE_PROCEDURE:
-        Object (*primitiveProcedure)(struct Environment *env, struct Pair *args) = object.value.primitiveProcedure;
+        struct Object (*primitiveProcedure)(struct Environment *env, struct Pair *args) = object.value.primitiveProcedure;
         return primitiveProcedure(env, pair->cdr.value.pair);
     case PROCEDURE:
-        Procedure procedure = object.value.procedure;
+        struct Procedure procedure = object.value.procedure;
         return executeProcedure(env, procedure, pair->cdr.value.pair);
     default:
         printf("Error. Could not call value\n");
@@ -49,9 +59,9 @@ Object evaluatePair(struct Environment *env, struct Pair *pair)
     }
 }
 
-Object evaluateIdentifier(Environment *env, char *identifier)
+struct Object evaluateIdentifier(struct Environment *env, char *identifier)
 {
-    Object *var = getVariable(env, identifier);
+    struct Object *var = getVariable(env, identifier);
     if (var == NULL)
     {
         printf("Error. Variable \"%s\" is not defined.\n", identifier);
@@ -60,12 +70,12 @@ Object evaluateIdentifier(Environment *env, char *identifier)
     return evaluate(env, *var);
 }
 
-Object evaluate(Environment *env, Object object)
+struct Object evaluate(struct Environment *env, struct Object object)
 {
     switch (object.kind)
     {
     case PAIR:
-        Pair *pair = object.value.pair;
+        struct Pair *pair = object.value.pair;
         return evaluatePair(env, pair);
     case IDENTIFIER:
         char *identifier = object.value.identifier;

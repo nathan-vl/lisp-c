@@ -1,7 +1,65 @@
-#include <stdio.h>
-#include "util.h"
+#include "dataTypes.h"
 
-size_t listLength(Pair *pair)
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Object booleanObject(bool boolean)
+{
+    struct Object object;
+    object.kind = BOOLEAN;
+    object.value.boolean = boolean;
+    return object;
+}
+
+struct Object characterObject(char character)
+{
+    struct Object object;
+    object.kind = CHARACTER;
+    object.value.character = character;
+    return object;
+}
+
+struct Object identifierObject(char *identifier)
+{
+    struct Object object;
+    object.kind = IDENTIFIER;
+    object.value.identifier = identifier;
+    return object;
+}
+
+struct Object pairObject(struct Pair *pair)
+{
+    struct Object object;
+    object.kind = PAIR;
+    object.value.pair = pair;
+    return object;
+}
+
+struct Object numberObject(double number)
+{
+    struct Object object;
+    object.kind = NUMBER;
+    object.value.number = number;
+    return object;
+}
+
+struct Object procedureObject(struct Procedure procedure)
+{
+    struct Object object;
+    object.kind = PROCEDURE;
+    object.value.procedure = procedure;
+    return object;
+}
+
+struct Object stringObject(char *string)
+{
+    struct Object object;
+    object.kind = STRING;
+    object.value.string = string;
+    return object;
+}
+
+size_t listLength(struct Pair *pair)
 {
     size_t length = 0;
     while (pair != NULL)
@@ -12,29 +70,29 @@ size_t listLength(Pair *pair)
     return length;
 }
 
-bool isTruthy(Object *object)
+bool isTruthy(struct Object *object)
 {
     return object->kind != BOOLEAN || object->value.boolean;
 }
 
-bool isNumber(Object *object)
+bool isNumber(struct Object *object)
 {
     return object->kind == NUMBER;
 }
 
-bool isList(Object *object)
+bool isList(struct Object *object)
 {
     return (object->kind == PAIR) && (object->value.pair == NULL || isList(&object->value.pair->cdr));
 }
 
-bool isPair(Object *object)
+bool isPair(struct Object *object)
 {
     return (object->kind == PAIR) && (object->value.pair != NULL) && !isList(&object->value.pair->cdr);
 }
 
-void printObject(Object *object);
+void printObject(struct Object *object);
 
-void printPair(Pair *pair)
+void printPair(struct Pair *pair)
 {
     printf("(");
     printObject(&pair->car);
@@ -43,7 +101,7 @@ void printPair(Pair *pair)
     printf(")");
 }
 
-void printList(Pair *list)
+void printList(struct Pair *list)
 {
     printf("(");
     if (list != NULL)
@@ -61,7 +119,7 @@ void printList(Pair *list)
     printf(")");
 }
 
-void printObject(Object *object)
+void printObject(struct Object *object)
 {
     switch (object->kind)
     {

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "environment.h"
+#include "dataTypes.h"
 
 size_t hash(char *key)
 {
@@ -18,11 +18,11 @@ size_t hash(char *key)
     return hashedKey;
 }
 
-Object *getVariable(Environment *env, char *key)
+struct Object *getVariable(struct Environment *env, char *key)
 {
     size_t index = hash(key);
 
-    VariableNode *node = env->nodes[index];
+    struct VariableNode *node = env->nodes[index];
     while (node != NULL)
     {
         if (strcmp(key, node->key) == 0)
@@ -40,11 +40,11 @@ Object *getVariable(Environment *env, char *key)
     return NULL;
 }
 
-void defineVariable(Environment *env, char *key, Object value)
+void defineVariable(struct Environment *env, char *key, struct Object value)
 {
     size_t index = hash(key);
-    VariableNode *node = env->nodes[index];
-    VariableNode *previous = NULL;
+    struct VariableNode *node = env->nodes[index];
+    struct VariableNode *previous = NULL;
 
     while (node != NULL && strcmp(key, node->key) != 0)
     {
@@ -57,7 +57,7 @@ void defineVariable(Environment *env, char *key, Object value)
     // {
     // }
 
-    VariableNode *newNode = malloc(sizeof(VariableNode));
+    struct VariableNode *newNode = malloc(sizeof(struct VariableNode));
     newNode->key = key;
     newNode->value = value;
     newNode->next = NULL;
@@ -70,4 +70,12 @@ void defineVariable(Environment *env, char *key, Object value)
     {
         previous->next = newNode;
     }
+}
+
+struct Object primitiveProcedureObject(struct Object (*primitiveProcedure)(struct Environment *env, struct Pair *args))
+{
+    struct Object object;
+    object.kind = PRIMITIVE_PROCEDURE;
+    object.value.primitiveProcedure = (void *)primitiveProcedure;
+    return object;
 }

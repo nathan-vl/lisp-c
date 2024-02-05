@@ -1,29 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "parser.h"
+#include "dataTypes.h"
+#include "scanner.h"
 
-typedef struct SyntaxAnalyserStatus
+struct SyntaxAnalyserStatus
 {
-    TokenLinkedList *current;
-} SyntaxAnalyserStatus;
+    struct TokenLinkedList *current;
+};
 
-Object parseObject(SyntaxAnalyserStatus *status);
+struct Object parseObject(struct SyntaxAnalyserStatus *status);
 
-Pair *newPair(Object car, Object cdr)
+struct Pair *newPair(struct Object car, struct Object cdr)
 {
-    Pair *pair = malloc(sizeof(Pair));
+    struct Pair *pair = malloc(sizeof(struct Pair));
     pair->car = car;
     pair->cdr = cdr;
     return pair;
 }
 
-Object newPairObject(Object car, Object cdr)
+struct Object newPairObject(struct Object car, struct Object cdr)
 {
     return pairObject(newPair(car, cdr));
 }
 
-Pair *parsePair(SyntaxAnalyserStatus *status)
+struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
 {
     if (status->current == NULL)
     {
@@ -37,9 +38,9 @@ Pair *parsePair(SyntaxAnalyserStatus *status)
         return NULL;
     }
 
-    Pair *pair = newPair(parseObject(status), pairObject(NULL));
+    struct Pair *pair = newPair(parseObject(status), pairObject(NULL));
 
-    Pair *current = pair;
+    struct Pair *current = pair;
     while (status->current->token.type != T_CLOSE_PAREN)
     {
         current->cdr = newPairObject(parseObject(status), pairObject(NULL));
@@ -50,19 +51,19 @@ Pair *parsePair(SyntaxAnalyserStatus *status)
     return pair;
 }
 
-Object parseQuote(SyntaxAnalyserStatus *status)
+struct Object parseQuote(struct SyntaxAnalyserStatus *status)
 {
-    Object car = identifierObject("quote");
+    struct Object car = identifierObject("quote");
 
-    Object obj = parseObject(status);
-    Object cdr = newPairObject(obj, pairObject(NULL));
+    struct Object obj = parseObject(status);
+    struct Object cdr = newPairObject(obj, pairObject(NULL));
 
     return newPairObject(car, cdr);
 }
 
-Object parseObject(SyntaxAnalyserStatus *status)
+struct Object parseObject(struct SyntaxAnalyserStatus *status)
 {
-    Token token = status->current->token;
+    struct Token token = status->current->token;
     status->current = status->current->next;
     switch (token.type)
     {
@@ -88,17 +89,17 @@ Object parseObject(SyntaxAnalyserStatus *status)
     }
 }
 
-ObjectLinkedList *syntaxAnalyser(TokenLinkedList *tokens)
+struct ObjectLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens)
 {
-    SyntaxAnalyserStatus status;
+    struct SyntaxAnalyserStatus status;
     status.current = tokens;
 
-    ObjectLinkedList objects;
-    ObjectLinkedList *current = &objects;
+    struct ObjectLinkedList objects;
+    struct ObjectLinkedList *current = &objects;
 
     while (status.current != NULL)
     {
-        current->next = malloc(sizeof(ObjectLinkedList));
+        current->next = malloc(sizeof(struct ObjectLinkedList));
         current = current->next;
         current->value = parseObject(&status);
         current->next = NULL;

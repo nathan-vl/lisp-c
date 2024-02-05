@@ -21,30 +21,30 @@ bool isValidIdentifier(char c)
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
 
-Token newToken(enum TokenType type, char *lexeme)
+struct Token newToken(enum TokenType type, char *lexeme)
 {
-    Token token;
+    struct Token token;
     token.type = type;
     token.lexeme = lexeme;
     return token;
 }
 
-Token newStringToken(char *string)
+struct Token newStringToken(char *string)
 {
-    Token token = newToken(T_STRING, string);
+    struct Token token = newToken(T_STRING, string);
     token.literal = newStringLiteral(string);
     return token;
 }
 
-Token newNumberToken(char *strNumber)
+struct Token newNumberToken(char *strNumber)
 {
-    Token token = newToken(T_NUMBER, NULL);
+    struct Token token = newToken(T_NUMBER, NULL);
     token.literal = newNumberLiteral(atof(strNumber));
     free(strNumber);
     return token;
 }
 
-Token parseString(ScannerStatus *status)
+struct Token parseString(struct ScannerStatus *status)
 {
     status->source++;
     status->col++;
@@ -70,7 +70,7 @@ Token parseString(ScannerStatus *status)
     return newStringToken(copy);
 }
 
-Token parseNumber(ScannerStatus *status)
+struct Token parseNumber(struct ScannerStatus *status)
 {
     char *start = status->source;
     while (isDigit(status->source[0]))
@@ -97,7 +97,7 @@ Token parseNumber(ScannerStatus *status)
     return newNumberToken(copy);
 }
 
-TokenType identifierType(char *identifier)
+enum TokenType identifierType(char *identifier)
 {
     if (strcmp(identifier, "f") == 0)
         return T_F;
@@ -106,7 +106,7 @@ TokenType identifierType(char *identifier)
     return T_IDENTIFIER;
 }
 
-Token parseIdentifier(ScannerStatus *status)
+struct Token parseIdentifier(struct ScannerStatus *status)
 {
     char *start = status->source;
 
@@ -125,7 +125,7 @@ Token parseIdentifier(ScannerStatus *status)
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
 
-    TokenType type = identifierType(copy);
+    enum TokenType type = identifierType(copy);
     switch (type)
     {
     case T_F:
@@ -138,7 +138,7 @@ Token parseIdentifier(ScannerStatus *status)
 }
 
 // TODO: Check if tokens literals should be free'd now
-void freeToken(Token token)
+void freeToken(struct Token token)
 {
     switch (token.type)
     {
@@ -152,7 +152,7 @@ void freeToken(Token token)
     }
 }
 
-Token parseCharacter(ScannerStatus *status)
+struct Token parseCharacter(struct ScannerStatus *status)
 {
     char *start = status->source;
     while (isValidIdentifier(status->source[0]))
@@ -164,7 +164,7 @@ Token parseCharacter(ScannerStatus *status)
     size_t length = (status->source - start) / sizeof(char);
     if (length == 1)
     {
-        Token token = newToken(T_CHARACTER, NULL);
+        struct Token token = newToken(T_CHARACTER, NULL);
         token.literal.kind = L_CHARACTER;
         token.literal.value.character = start[0];
         return token;
@@ -174,7 +174,7 @@ Token parseCharacter(ScannerStatus *status)
     strncpy(copy, start, length);
     copy[length] = '\0';
 
-    Token token = newToken(T_CHARACTER, NULL);
+    struct Token token = newToken(T_CHARACTER, NULL);
     if (strcmp(copy, "newline") == 0)
     {
         token.literal.kind = L_CHARACTER;
@@ -200,13 +200,13 @@ Token parseCharacter(ScannerStatus *status)
     return token;
 }
 
-Token parseHash(ScannerStatus *status)
+struct Token parseHash(struct ScannerStatus *status)
 {
     // Ignore hash character
     status->source++;
     status->col++;
 
-    Token token;
+    struct Token token;
     switch (status->source[0])
     {
     case '\\':
@@ -236,7 +236,7 @@ Token parseHash(ScannerStatus *status)
     }
 }
 
-Token parseToken(ScannerStatus *status)
+struct Token parseToken(struct ScannerStatus *status)
 {
     char c = status->source[0];
     switch (c)
@@ -292,25 +292,25 @@ Token parseToken(ScannerStatus *status)
     }
 }
 
-TokenLinkedList *parse(char *source)
+struct TokenLinkedList *parse(char *source)
 {
-    TokenLinkedList tokensHead;
-    TokenLinkedList *current = &tokensHead;
+    struct TokenLinkedList tokensHead;
+    struct TokenLinkedList *current = &tokensHead;
 
-    ScannerStatus status;
+    struct ScannerStatus status;
     status.source = source;
     status.line = 1;
     status.col = 1;
 
     while (status.source[0] != '\0')
     {
-        Token token = parseToken(&status);
+        struct Token token = parseToken(&status);
         if (token.type == T_WHITESPACE)
         {
             continue;
         }
 
-        current->next = malloc(sizeof(TokenLinkedList));
+        current->next = malloc(sizeof(struct TokenLinkedList));
         current = current->next;
         current->token = token;
         current->next = NULL;
