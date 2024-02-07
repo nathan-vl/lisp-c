@@ -9,5 +9,4 @@ struct ObjectLinkedList
     struct ObjectLinkedList *next;
 };
 
-
 struct ObjectLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens);

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "scanner.h"
+#include "token.h"
 
 void lexicalError(char *error, size_t line, size_t col)
 {
@@ -19,29 +20,6 @@ bool isDigit(char c)
 bool isValidIdentifier(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '+') || (c == '-') || (c == '*') || (c == '/');
-}
-
-struct Token newToken(enum TokenType type, char *lexeme)
-{
-    struct Token token;
-    token.type = type;
-    token.lexeme = lexeme;
-    return token;
-}
-
-struct Token newStringToken(char *string)
-{
-    struct Token token = newToken(T_STRING, string);
-    token.literal = newStringLiteral(string);
-    return token;
-}
-
-struct Token newNumberToken(char *strNumber)
-{
-    struct Token token = newToken(T_NUMBER, NULL);
-    token.literal = newNumberLiteral(atof(strNumber));
-    free(strNumber);
-    return token;
 }
 
 struct ScannerStatus
