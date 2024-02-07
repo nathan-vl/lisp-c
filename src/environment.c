@@ -18,7 +18,7 @@ size_t hash(char *key)
     return hashedKey;
 }
 
-struct Object *getVariable(struct Environment *env, char *key)
+struct Expression *getVariable(struct Environment *env, char *key)
 {
     size_t index = hash(key);
 
@@ -40,7 +40,7 @@ struct Object *getVariable(struct Environment *env, char *key)
     return NULL;
 }
 
-void defineVariable(struct Environment *env, char *key, struct Object value)
+void defineVariable(struct Environment *env, char *key, struct Expression value)
 {
     size_t index = hash(key);
     struct VariableNode *node = env->nodes[index];
@@ -52,7 +52,7 @@ void defineVariable(struct Environment *env, char *key, struct Object value)
         node = node->next;
     }
 
-    // TODO: Free previous object
+    // TODO: Free previous expression
     // if (strcmp(key, node->key) == 0)
     // {
     // }
@@ -72,10 +72,10 @@ void defineVariable(struct Environment *env, char *key, struct Object value)
     }
 }
 
-struct Object primitiveProcedureObject(struct Object (*primitiveProcedure)(struct Environment *env, struct Pair *args))
+struct Expression primitiveProcedureExpression(struct Expression (*primitiveProcedure)(struct Environment *env, struct Pair *args))
 {
-    struct Object object;
-    object.kind = PRIMITIVE_PROCEDURE;
-    object.value.primitiveProcedure = (void *)primitiveProcedure;
-    return object;
+    struct Expression expression;
+    expression.kind = PRIMITIVE_PROCEDURE;
+    expression.value.primitiveProcedure = (void *)primitiveProcedure;
+    return expression;
 }

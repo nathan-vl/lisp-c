@@ -1,12 +1,12 @@
 #pragma once
 
 #include "scanner.h"
-#include "object.h"
+#include "expression.h"
 
-struct ObjectLinkedList
+struct ExpressionLinkedList
 {
-    struct Object value;
-    struct ObjectLinkedList *next;
+    struct Expression value;
+    struct ExpressionLinkedList *next;
 };
 
-struct ObjectLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens);
+struct ExpressionLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens);

@@ -6,18 +6,18 @@
 
 void loadPrimitiveProcedures(struct Environment *env)
 {
-    defineVariable(env, "cons", primitiveProcedureObject(cons));
-    defineVariable(env, "define", primitiveProcedureObject(define));
-    defineVariable(env, "lambda", primitiveProcedureObject(lambda));
-    defineVariable(env, "print", primitiveProcedureObject(print));
-    defineVariable(env, "quote", primitiveProcedureObject(quote));
+    defineVariable(env, "cons", primitiveProcedureExpression(cons));
+    defineVariable(env, "define", primitiveProcedureExpression(define));
+    defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
+    defineVariable(env, "print", primitiveProcedureExpression(print));
+    defineVariable(env, "quote", primitiveProcedureExpression(quote));
 
-    defineVariable(env, "+", primitiveProcedureObject(add));
-    defineVariable(env, "-", primitiveProcedureObject(subtract));
-    defineVariable(env, "*", primitiveProcedureObject(multiply));
-    defineVariable(env, "/", primitiveProcedureObject(divide));
+    defineVariable(env, "+", primitiveProcedureExpression(add));
+    defineVariable(env, "-", primitiveProcedureExpression(subtract));
+    defineVariable(env, "*", primitiveProcedureExpression(multiply));
+    defineVariable(env, "/", primitiveProcedureExpression(divide));
 
-    defineVariable(env, "not", primitiveProcedureObject(negation));
+    defineVariable(env, "not", primitiveProcedureExpression(negation));
 }
 
 char *readFile(char *path)
@@ -69,7 +69,7 @@ void interpreter()
         }
 
         struct TokenLinkedList *tokens = parse(line);
-        struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
+        struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
         while (tokens != NULL)
         {
             struct TokenLinkedList *current = tokens;
@@ -77,26 +77,26 @@ void interpreter()
             free(current);
         }
 
-        while (objects != NULL)
+        while (expressions != NULL)
         {
-            struct Object objectEval = evaluate(&env, objects->value);
-            printObject(&objectEval);
+            struct Expression expressionEval = evaluate(&env, expressions->value);
+            printExpression(&expressionEval);
             printf("\n");
 
-            objects = objects->next;
+            expressions = expressions->next;
         }
     }
 }
 
-void freeObject(struct Object *object)
+void freeExpression(struct Expression *expression)
 {
-    switch (object->kind)
+    switch (expression->kind)
     {
     case STRING:
-        free(object->value.string);
+        free(expression->value.string);
         break;
     case IDENTIFIER:
-        free(object->value.identifier);
+        free(expression->value.identifier);
         break;
     default:
         break;
@@ -110,7 +110,7 @@ void parseFile(char *path)
     struct TokenLinkedList *tokens = parse(fileContents);
     free(fileContents);
 
-    struct ObjectLinkedList *objects = syntaxAnalyser(tokens);
+    struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
     while (tokens != NULL)
     {
         struct TokenLinkedList *current = tokens;
@@ -123,14 +123,14 @@ void parseFile(char *path)
 
     loadPrimitiveProcedures(&env);
 
-    while (objects != NULL)
+    while (expressions != NULL)
     {
-        evaluate(&env, objects->value);
-        struct ObjectLinkedList *current = objects;
+        evaluate(&env, expressions->value);
+        struct ExpressionLinkedList *current = expressions;
 
-        objects = objects->next;
+        expressions = expressions->next;
 
-        freeObject(&current->value);
+        freeExpression(&current->value);
         free(current);
     }
 }

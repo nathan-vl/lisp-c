@@ -1,8 +1,8 @@
 #include "std.h"
 
-double getNumber(struct Environment *env, struct Object *object)
+double getNumber(struct Environment *env, struct Expression *expression)
 {
-    struct Object eval = evaluate(env, *object);
+    struct Expression eval = evaluate(env, *expression);
     if (!isNumber(&eval))
     {
         printf("Error. Expression should eval to number type.\n");
@@ -11,58 +11,58 @@ double getNumber(struct Environment *env, struct Object *object)
     return eval.value.number;
 }
 
-struct Object add(struct Environment *env, struct Pair *args)
+struct Expression add(struct Environment *env, struct Pair *args)
 {
     double result = 0;
     while (args != NULL)
     {
-        struct Object value = evaluate(env, args->car);
+        struct Expression value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result += number;
         args = args->cdr.value.pair;
     }
-    return numberObject(result);
+    return numberExpression(result);
 }
 
-struct Object subtract(struct Environment *env, struct Pair *args)
+struct Expression subtract(struct Environment *env, struct Pair *args)
 {
-    struct Object eval = evaluate(env, args->car);
+    struct Expression eval = evaluate(env, args->car);
     double result = getNumber(env, &eval);
     args = args->cdr.value.pair;
     while (args != NULL)
     {
-        struct Object value = evaluate(env, args->car);
+        struct Expression value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result -= number;
         args = args->cdr.value.pair;
     }
-    return numberObject(result);
+    return numberExpression(result);
 }
 
-struct Object multiply(struct Environment *env, struct Pair *args)
+struct Expression multiply(struct Environment *env, struct Pair *args)
 {
     double result = 1;
     while (args != NULL)
     {
-        struct Object value = evaluate(env, args->car);
+        struct Expression value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result *= number;
         args = args->cdr.value.pair;
     }
-    return numberObject(result);
+    return numberExpression(result);
 }
 
-struct Object divide(struct Environment *env, struct Pair *args)
+struct Expression divide(struct Environment *env, struct Pair *args)
 {
-    struct Object eval = evaluate(env, args->car);
+    struct Expression eval = evaluate(env, args->car);
     double result = getNumber(env, &eval);
     args = args->cdr.value.pair;
     while (args != NULL)
     {
-        struct Object value = evaluate(env, args->car);
+        struct Expression value = evaluate(env, args->car);
         double number = getNumber(env, &value);
         result /= number;
         args = args->cdr.value.pair;
     }
-    return numberObject(result);
+    return numberExpression(result);
 }

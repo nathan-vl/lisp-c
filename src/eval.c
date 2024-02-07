@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "object.h"
+#include "expression.h"
 #include "environment.h"
 
-struct Object evaluate(struct Environment *env, struct Object object);
+struct Expression evaluate(struct Environment *env, struct Expression expression);
 
 void checkArityError(size_t expected, size_t actual)
 {
@@ -17,7 +17,7 @@ void checkArityError(size_t expected, size_t actual)
     }
 }
 
-struct Object executeProcedure(struct Environment *env, struct Procedure procedure, struct Pair *args)
+struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct Pair *args)
 {
     size_t argsLength = listLength(args);
 
@@ -29,29 +29,29 @@ struct Object executeProcedure(struct Environment *env, struct Procedure procedu
     struct Pair *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
     {
-        struct Object object = current->car;
-        defineVariable(&innerEnv, procedure.parameters[i], object);
+        struct Expression expression = current->car;
+        defineVariable(&innerEnv, procedure.parameters[i], expression);
         current = current->cdr.value.pair;
     }
 
-    return evaluate(&innerEnv, pairObject(procedure.body));
+    return evaluate(&innerEnv, pairExpression(procedure.body));
 }
 
-struct Object evaluatePair(struct Environment *env, struct Pair *pair)
+struct Expression evaluatePair(struct Environment *env, struct Pair *pair)
 {
     if (pair == NULL)
     {
-        return pairObject(pair);
+        return pairExpression(pair);
     }
 
-    struct Object object = evaluate(env, pair->car);
-    switch (object.kind)
+    struct Expression expression = evaluate(env, pair->car);
+    switch (expression.kind)
     {
     case PRIMITIVE_PROCEDURE:
-        struct Object (*primitiveProcedure)(struct Environment *env, struct Pair *args) = object.value.primitiveProcedure;
+        struct Expression (*primitiveProcedure)(struct Environment *env, struct Pair *args) = expression.value.primitiveProcedure;
         return primitiveProcedure(env, pair->cdr.value.pair);
     case PROCEDURE:
-        struct Procedure procedure = object.value.procedure;
+        struct Procedure procedure = expression.value.procedure;
         return executeProcedure(env, procedure, pair->cdr.value.pair);
     default:
         printf("Error. Could not call value\n");
@@ -59,9 +59,9 @@ struct Object evaluatePair(struct Environment *env, struct Pair *pair)
     }
 }
 
-struct Object evaluateIdentifier(struct Environment *env, char *identifier)
+struct Expression evaluateIdentifier(struct Environment *env, char *identifier)
 {
-    struct Object *var = getVariable(env, identifier);
+    struct Expression *var = getVariable(env, identifier);
     if (var == NULL)
     {
         printf("Error. Variable \"%s\" is not defined.\n", identifier);
@@ -70,17 +70,17 @@ struct Object evaluateIdentifier(struct Environment *env, char *identifier)
     return evaluate(env, *var);
 }
 
-struct Object evaluate(struct Environment *env, struct Object object)
+struct Expression evaluate(struct Environment *env, struct Expression expression)
 {
-    switch (object.kind)
+    switch (expression.kind)
     {
     case PAIR:
-        struct Pair *pair = object.value.pair;
+        struct Pair *pair = expression.value.pair;
         return evaluatePair(env, pair);
     case IDENTIFIER:
-        char *identifier = object.value.identifier;
+        char *identifier = expression.value.identifier;
         return evaluateIdentifier(env, identifier);
     default:
-        return object;
+        return expression;
     }
 }

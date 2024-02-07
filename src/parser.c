@@ -9,9 +9,9 @@ struct SyntaxAnalyserStatus
     struct TokenLinkedList *current;
 };
 
-struct Object parseObject(struct SyntaxAnalyserStatus *status);
+struct Expression parseExpression(struct SyntaxAnalyserStatus *status);
 
-struct Pair *newPair(struct Object car, struct Object cdr)
+struct Pair *newPair(struct Expression car, struct Expression cdr)
 {
     struct Pair *pair = malloc(sizeof(struct Pair));
     pair->car = car;
@@ -19,9 +19,9 @@ struct Pair *newPair(struct Object car, struct Object cdr)
     return pair;
 }
 
-struct Object newPairObject(struct Object car, struct Object cdr)
+struct Expression newPairExpression(struct Expression car, struct Expression cdr)
 {
-    return pairObject(newPair(car, cdr));
+    return pairExpression(newPair(car, cdr));
 }
 
 struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
@@ -38,12 +38,12 @@ struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
         return NULL;
     }
 
-    struct Pair *pair = newPair(parseObject(status), pairObject(NULL));
+    struct Pair *pair = newPair(parseExpression(status), pairExpression(NULL));
 
     struct Pair *current = pair;
     while (status->current->token.type != T_CLOSE_PAREN)
     {
-        current->cdr = newPairObject(parseObject(status), pairObject(NULL));
+        current->cdr = newPairExpression(parseExpression(status), pairExpression(NULL));
         current = current->cdr.value.pair;
     }
     status->current = status->current->next;
@@ -51,17 +51,17 @@ struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
     return pair;
 }
 
-struct Object parseQuote(struct SyntaxAnalyserStatus *status)
+struct Expression parseQuote(struct SyntaxAnalyserStatus *status)
 {
-    struct Object car = identifierObject("quote");
+    struct Expression car = identifierExpression("quote");
 
-    struct Object obj = parseObject(status);
-    struct Object cdr = newPairObject(obj, pairObject(NULL));
+    struct Expression obj = parseExpression(status);
+    struct Expression cdr = newPairExpression(obj, pairExpression(NULL));
 
-    return newPairObject(car, cdr);
+    return newPairExpression(car, cdr);
 }
 
-struct Object parseObject(struct SyntaxAnalyserStatus *status)
+struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
 {
     struct Token token = status->current->token;
     status->current = status->current->next;
@@ -70,40 +70,40 @@ struct Object parseObject(struct SyntaxAnalyserStatus *status)
     case T_APOSTROPHE:
         return parseQuote(status);
     case T_OPEN_PAREN:
-        return pairObject(parsePair(status));
+        return pairExpression(parsePair(status));
     case T_F:
-        return booleanObject(false);
+        return booleanExpression(false);
     case T_T:
-        return booleanObject(true);
+        return booleanExpression(true);
     case T_CHARACTER:
-        return characterObject(token.literal.value.character);
+        return characterExpression(token.literal.value.character);
     case T_IDENTIFIER:
-        return identifierObject(token.lexeme);
+        return identifierExpression(token.lexeme);
     case T_NUMBER:
-        return numberObject(token.literal.value.number);
+        return numberExpression(token.literal.value.number);
     case T_STRING:
-        return stringObject(token.literal.value.string);
+        return stringExpression(token.literal.value.string);
     default:
         printf("Error. Unrecognized token.\n");
         exit(-1);
     }
 }
 
-struct ObjectLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens)
+struct ExpressionLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens)
 {
     struct SyntaxAnalyserStatus status;
     status.current = tokens;
 
-    struct ObjectLinkedList objects;
-    struct ObjectLinkedList *current = &objects;
+    struct ExpressionLinkedList expressions;
+    struct ExpressionLinkedList *current = &expressions;
 
     while (status.current != NULL)
     {
-        current->next = malloc(sizeof(struct ObjectLinkedList));
+        current->next = malloc(sizeof(struct ExpressionLinkedList));
         current = current->next;
-        current->value = parseObject(&status);
+        current->value = parseExpression(&status);
         current->next = NULL;
     }
 
-    return objects.next;
+    return expressions.next;
 }

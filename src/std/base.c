@@ -1,16 +1,16 @@
 #include "std.h"
 
-struct Object cons(struct Environment *env, struct Pair *args)
+struct Expression cons(struct Environment *env, struct Pair *args)
 {
     checkArityError(2, listLength(args));
 
     struct Pair *pair = malloc(sizeof(struct Pair));
     pair->car = evaluate(env, args->car);
     pair->cdr = evaluate(env, args->cdr.value.pair->car);
-    return pairObject(pair);
+    return pairExpression(pair);
 }
 
-struct Object define(struct Environment *env, struct Pair *args)
+struct Expression define(struct Environment *env, struct Pair *args)
 {
     if (args->car.kind != IDENTIFIER)
     {
@@ -21,12 +21,12 @@ struct Object define(struct Environment *env, struct Pair *args)
     checkArityError(2, listLength(args));
 
     char *identifier = args->car.value.identifier;
-    struct Object object = args->cdr.value.pair->car;
-    defineVariable(env, identifier, object);
-    return booleanObject(true);
+    struct Expression expression = args->cdr.value.pair->car;
+    defineVariable(env, identifier, expression);
+    return booleanExpression(true);
 }
 
-struct Object lambda(struct Environment *env, struct Pair *args)
+struct Expression lambda(struct Environment *env, struct Pair *args)
 {
     checkArityError(2, listLength(args));
 
@@ -48,7 +48,7 @@ struct Object lambda(struct Environment *env, struct Pair *args)
         struct Pair *currentParam = args->car.value.pair;
         for (size_t i = 0; i < procedure.parametersLength; i++)
         {
-            struct Object car = currentParam->car;
+            struct Expression car = currentParam->car;
             if (car.kind != IDENTIFIER)
             {
                 printf("Error. Expected identifier.\n");
@@ -58,7 +58,7 @@ struct Object lambda(struct Environment *env, struct Pair *args)
         }
     }
 
-    struct Object body = args->cdr.value.pair->car;
+    struct Expression body = args->cdr.value.pair->car;
     if (body.kind == IDENTIFIER)
     {
         body = evaluate(env, body);
@@ -71,27 +71,27 @@ struct Object lambda(struct Environment *env, struct Pair *args)
     }
 
     procedure.body = body.value.pair;
-    return procedureObject(procedure);
+    return procedureExpression(procedure);
 }
 
-struct Object print(struct Environment *env, struct Pair *args)
+struct Expression print(struct Environment *env, struct Pair *args)
 {
-    struct Object car = evaluate(env, args->car);
-    printObject(&car);
+    struct Expression car = evaluate(env, args->car);
+    printExpression(&car);
 
     args = args->cdr.value.pair;
     while (args != NULL)
     {
         printf(" ");
         car = evaluate(env, args->car);
-        printObject(&car);
+        printExpression(&car);
         args = args->cdr.value.pair;
     }
     printf("\n");
-    return booleanObject(true);
+    return booleanExpression(true);
 }
 
-struct Object quote(struct Environment *env, struct Pair *pair)
+struct Expression quote(struct Environment *env, struct Pair *pair)
 {
     return env == NULL ? pair->car : pair->car;
 }

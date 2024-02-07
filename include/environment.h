@@ -1,6 +1,6 @@
 #pragma once
 
-#include "object.h"
+#include "expression.h"
 
 #define HASH_SIZE 20
 
@@ -13,12 +13,12 @@ struct Environment
 struct VariableNode
 {
     char *key;
-    struct Object value;
+    struct Expression value;
 
     struct VariableNode *next;
 };
 
-struct Object *getVariable(struct Environment *env, char *key);
-void defineVariable(struct Environment *env, char *key, struct Object value);
-struct Object primitiveProcedureObject(struct Object (*primitiveProcedure)(struct Environment *env, struct Pair *args));
+struct Expression *getVariable(struct Environment *env, char *key);
+void defineVariable(struct Environment *env, char *key, struct Expression value);
+struct Expression primitiveProcedureExpression(struct Expression (*primitiveProcedure)(struct Environment *env, struct Pair *args));
 void loadPrimitiveProcedures(struct Environment *env);

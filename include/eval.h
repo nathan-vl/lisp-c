@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "environment.h"
 
-void printObject(struct Object *object);
-struct Object evaluate(struct Environment *env, struct Object object);
+void printExpression(struct Expression *expression);
+struct Expression evaluate(struct Environment *env, struct Expression expression);
 
 void checkArityError(size_t expected, size_t actual);

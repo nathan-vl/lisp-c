@@ -5,20 +5,20 @@
 
 #include "environment.h"
 #include "eval.h"
-#include "object.h"
+#include "expression.h"
 
 // Base
-struct Object cons(struct Environment *env, struct Pair *args);
-struct Object define(struct Environment *env, struct Pair *args);
-struct Object lambda(struct Environment *env, struct Pair *args);
-struct Object print(struct Environment *env, struct Pair *args);
-struct Object quote(struct Environment *env, struct Pair *pair);
+struct Expression cons(struct Environment *env, struct Pair *args);
+struct Expression define(struct Environment *env, struct Pair *args);
+struct Expression lambda(struct Environment *env, struct Pair *args);
+struct Expression print(struct Environment *env, struct Pair *args);
+struct Expression quote(struct Environment *env, struct Pair *pair);
 
 // Bool
-struct Object negation(struct Environment *env, struct Pair *args);
+struct Expression negation(struct Environment *env, struct Pair *args);
 
 // Math
-struct Object add(struct Environment *env, struct Pair *args);
-struct Object subtract(struct Environment *env, struct Pair *args);
-struct Object multiply(struct Environment *env, struct Pair *args);
-struct Object divide(struct Environment *env, struct Pair *args);
+struct Expression add(struct Environment *env, struct Pair *args);
+struct Expression subtract(struct Environment *env, struct Pair *args);
+struct Expression multiply(struct Environment *env, struct Pair *args);
+struct Expression divide(struct Environment *env, struct Pair *args);
