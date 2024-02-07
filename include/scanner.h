@@ -18,16 +18,6 @@ enum TokenType
     T_IDENTIFIER,
     T_NUMBER,
     T_STRING,
-
-    T_WHITESPACE,
-    T_EOF,
-};
-
-struct ScannerStatus
-{
-    char *source;
-    int line;
-    int col;
 };
 
 struct Token

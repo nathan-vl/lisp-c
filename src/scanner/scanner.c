@@ -44,6 +44,16 @@ struct Token newNumberToken(char *strNumber)
     return token;
 }
 
+struct ScannerStatus
+{
+    char *source;
+    int line;
+    int col;
+
+    struct TokenLinkedList tokensHead;
+    struct TokenLinkedList *currentToken;
+};
+
 struct Token parseString(struct ScannerStatus *status)
 {
     status->source++;
@@ -236,53 +246,62 @@ struct Token parseHash(struct ScannerStatus *status)
     }
 }
 
-struct Token parseToken(struct ScannerStatus *status)
+void addToken(struct ScannerStatus *status, struct Token token)
+{
+    status->currentToken->next = malloc(sizeof(struct TokenLinkedList));
+    status->currentToken = status->currentToken->next;
+    status->currentToken->token = token;
+    status->currentToken->next = NULL;
+}
+
+void parseToken(struct ScannerStatus *status)
 {
     char c = status->source[0];
     switch (c)
     {
-    case '\0':
-        status->source++;
-        status->col++;
-        return newToken(T_EOF, "\0");
     case '(':
         status->source++;
         status->col++;
-        return newToken(T_OPEN_PAREN, "(");
+        addToken(status, newToken(T_OPEN_PAREN, "("));
+        break;
     case ')':
         status->source++;
         status->col++;
-        return newToken(T_CLOSE_PAREN, ")");
+        addToken(status, newToken(T_CLOSE_PAREN, ")"));
+        break;
     case '\'':
         status->source++;
         status->col++;
-        return newToken(T_APOSTROPHE, "'");
+        addToken(status, newToken(T_APOSTROPHE, "'"));
+        break;
     case '"':
-        return parseString(status);
+        addToken(status, parseString(status));
+        break;
     case '#':
-        return parseHash(status);
+        addToken(status, parseHash(status));
+        break;
 
     // Ignore whitespace
     case '\n':
         status->source++;
         status->line++;
         status->col = 1;
-        return newToken(T_WHITESPACE, NULL);
+        break;
     case ' ':
     case '\r':
     case '\t':
         status->source++;
         status->col++;
-        return newToken(T_WHITESPACE, NULL);
+        break;
 
     default:
         if (isDigit(c))
         {
-            return parseNumber(status);
+            addToken(status, parseNumber(status));
         }
         else if (isValidIdentifier(c))
         {
-            return parseIdentifier(status);
+            addToken(status, parseIdentifier(status));
         }
         else
         {
@@ -294,27 +313,16 @@ struct Token parseToken(struct ScannerStatus *status)
 
 struct TokenLinkedList *parse(char *source)
 {
-    struct TokenLinkedList tokensHead;
-    struct TokenLinkedList *current = &tokensHead;
-
     struct ScannerStatus status;
+    status.currentToken = &status.tokensHead;
     status.source = source;
     status.line = 1;
     status.col = 1;
 
     while (status.source[0] != '\0')
     {
-        struct Token token = parseToken(&status);
-        if (token.type == T_WHITESPACE)
-        {
-            continue;
-        }
-
-        current->next = malloc(sizeof(struct TokenLinkedList));
-        current = current->next;
-        current->token = token;
-        current->next = NULL;
+        parseToken(&status);
     }
 
-    return tokensHead.next;
+    return status.tokensHead.next;
 }
