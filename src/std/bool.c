@@ -1,6 +1,6 @@
 #include "std.h"
 
-struct Expression negation(struct Environment *env, struct Pair *args)
+struct Expression negation(struct Environment *env, struct List *args)
 {
     checkArityError(1, listLength(args));
 

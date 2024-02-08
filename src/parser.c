@@ -11,20 +11,20 @@ struct SyntaxAnalyserStatus
 
 struct Expression parseExpression(struct SyntaxAnalyserStatus *status);
 
-struct Pair *newPair(struct Expression car, struct Expression cdr)
+struct List *newList(struct Expression car, struct List *cdr)
 {
-    struct Pair *pair = malloc(sizeof(struct Pair));
-    pair->car = car;
-    pair->cdr = cdr;
-    return pair;
+    struct List *list = malloc(sizeof(struct List));
+    list->car = car;
+    list->cdr = cdr;
+    return list;
 }
 
-struct Expression newPairExpression(struct Expression car, struct Expression cdr)
+struct Expression newListExpression(struct Expression car, struct List *cdr)
 {
-    return pairExpression(newPair(car, cdr));
+    return listExpression(newList(car, cdr));
 }
 
-struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
+struct List *parseList(struct SyntaxAnalyserStatus *status)
 {
     if (status->current == NULL)
     {
@@ -38,27 +38,26 @@ struct Pair *parsePair(struct SyntaxAnalyserStatus *status)
         return NULL;
     }
 
-    struct Pair *pair = newPair(parseExpression(status), pairExpression(NULL));
+    struct List *list = newList(parseExpression(status), NULL);
 
-    struct Pair *current = pair;
+    struct List *current = list;
     while (status->current->token.type != T_CLOSE_PAREN)
     {
-        current->cdr = newPairExpression(parseExpression(status), pairExpression(NULL));
-        current = current->cdr.value.pair;
+        current->cdr = newList(parseExpression(status), NULL);
+        current = current->cdr;
     }
     status->current = status->current->next;
 
-    return pair;
+    return list;
 }
 
 struct Expression parseQuote(struct SyntaxAnalyserStatus *status)
 {
     struct Expression car = identifierExpression("quote");
 
-    struct Expression obj = parseExpression(status);
-    struct Expression cdr = newPairExpression(obj, pairExpression(NULL));
+    struct List *cdr = newList(parseExpression(status), NULL);
 
-    return newPairExpression(car, cdr);
+    return newListExpression(car, cdr);
 }
 
 struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
@@ -70,7 +69,7 @@ struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
     case T_APOSTROPHE:
         return parseQuote(status);
     case T_OPEN_PAREN:
-        return pairExpression(parsePair(status));
+        return listExpression(parseList(status));
     case T_F:
         return booleanExpression(false);
     case T_T:

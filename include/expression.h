@@ -7,7 +7,7 @@ struct Procedure
 {
     char **parameters;
     size_t parametersLength;
-    struct Pair *body;
+    struct List *body;
 };
 
 enum ExpressionKind
@@ -15,7 +15,7 @@ enum ExpressionKind
     BOOLEAN,
     CHARACTER,
     IDENTIFIER,
-    PAIR,
+    LIST,
     NUMBER,
     PRIMITIVE_PROCEDURE,
     PROCEDURE,
@@ -27,9 +27,9 @@ union ExpressionValue
     bool boolean;
     char character;
     char *identifier;
-    struct Pair *pair;
+    struct List *list;
     struct Procedure procedure;
-    void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, Pair*)
+    void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
     double number;
     char *string;
 };
@@ -40,23 +40,23 @@ struct Expression
     union ExpressionValue value;
 };
 
-struct Pair
+struct List
 {
     struct Expression car;
-    struct Expression cdr;
+    struct List *cdr;
 };
 
 struct Expression booleanExpression(bool boolean);
 struct Expression characterExpression(char character);
 struct Expression identifierExpression(char *identifier);
-struct Expression pairExpression(struct Pair *pair);
+struct Expression listExpression(struct List *list);
 struct Expression numberExpression(double number);
 struct Expression procedureExpression(struct Procedure procedure);
 struct Expression stringExpression(char *string);
 
-size_t listLength(struct Pair *pair);
+size_t listLength(struct List *list);
 
 bool isTruthy(struct Expression *expression);
 bool isNumber(struct Expression *expression);
 bool isList(struct Expression *expression);
-bool isPair(struct Expression *expression);
+bool isList(struct Expression *expression);

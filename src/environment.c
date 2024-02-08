@@ -72,7 +72,7 @@ void defineVariable(struct Environment *env, char *key, struct Expression value)
     }
 }
 
-struct Expression primitiveProcedureExpression(struct Expression (*primitiveProcedure)(struct Environment *env, struct Pair *args))
+struct Expression primitiveProcedureExpression(struct Expression (*primitiveProcedure)(struct Environment *env, struct List *args))
 {
     struct Expression expression;
     expression.kind = PRIMITIVE_PROCEDURE;

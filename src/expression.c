@@ -28,11 +28,11 @@ struct Expression identifierExpression(char *identifier)
     return expression;
 }
 
-struct Expression pairExpression(struct Pair *pair)
+struct Expression listExpression(struct List *list)
 {
     struct Expression expression;
-    expression.kind = PAIR;
-    expression.value.pair = pair;
+    expression.kind = LIST;
+    expression.value.list = list;
     return expression;
 }
 
@@ -60,13 +60,13 @@ struct Expression stringExpression(char *string)
     return expression;
 }
 
-size_t listLength(struct Pair *pair)
+size_t listLength(struct List *list)
 {
     size_t length = 0;
-    while (pair != NULL)
+    while (list != NULL)
     {
         length++;
-        pair = pair->cdr.value.pair;
+        list = list->cdr;
     }
     return length;
 }
@@ -83,38 +83,24 @@ bool isNumber(struct Expression *expression)
 
 bool isList(struct Expression *expression)
 {
-    return (expression->kind == PAIR) && (expression->value.pair == NULL || isList(&expression->value.pair->cdr));
-}
-
-bool isPair(struct Expression *expression)
-{
-    return (expression->kind == PAIR) && (expression->value.pair != NULL) && !isList(&expression->value.pair->cdr);
+    return expression->kind == LIST;
 }
 
 void printExpression(struct Expression *expression);
 
-void printPair(struct Pair *pair)
-{
-    printf("(");
-    printExpression(&pair->car);
-    printf(" . ");
-    printExpression(&pair->cdr);
-    printf(")");
-}
-
-void printList(struct Pair *list)
+void printList(struct List *list)
 {
     printf("(");
     if (list != NULL)
     {
         printExpression(&list->car);
 
-        list = list->cdr.value.pair;
+        list = list->cdr;
         while (list != NULL)
         {
             printf(" ");
             printExpression(&list->car);
-            list = list->cdr.value.pair;
+            list = list->cdr;
         }
     }
     printf(")");
@@ -145,15 +131,8 @@ void printExpression(struct Expression *expression)
 {
     switch (expression->kind)
     {
-    case PAIR:
-        if (isPair(expression))
-        {
-            printPair(expression->value.pair);
-        }
-        else
-        {
-            printList(expression->value.pair);
-        }
+    case LIST:
+        printList(expression->value.list);
         break;
     case BOOLEAN:
         printf("%s", expression->value.boolean ? "#t" : "#f");

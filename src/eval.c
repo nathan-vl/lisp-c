@@ -26,7 +26,7 @@ void checkArityAtLeastError(size_t minimum, size_t actual)
     }
 }
 
-struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct Pair *args)
+struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct List *args)
 {
     size_t argsLength = listLength(args);
 
@@ -35,34 +35,34 @@ struct Expression executeProcedure(struct Environment *env, struct Procedure pro
     struct Environment innerEnv;
     innerEnv.enclosingEnvironment = env;
 
-    struct Pair *current = args;
+    struct List *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
     {
         char *parameter = procedure.parameters[i];
         struct Expression expression = evaluate(env, current->car);
         defineVariable(&innerEnv, parameter, expression);
-        current = current->cdr.value.pair;
+        current = current->cdr;
     }
 
-    return evaluate(&innerEnv, pairExpression(procedure.body));
+    return evaluate(&innerEnv, listExpression(procedure.body));
 }
 
-struct Expression evaluatePair(struct Environment *env, struct Pair *pair)
+struct Expression evaluateList(struct Environment *env, struct List *list)
 {
-    if (pair == NULL)
+    if (list == NULL)
     {
-        return pairExpression(NULL);
+        return listExpression(NULL);
     }
 
-    struct Expression expression = evaluate(env, pair->car);
+    struct Expression expression = evaluate(env, list->car);
     switch (expression.kind)
     {
     case PRIMITIVE_PROCEDURE:
-        struct Expression (*primitiveProcedure)(struct Environment *env, struct Pair *args) = expression.value.primitiveProcedure;
-        return primitiveProcedure(env, pair->cdr.value.pair);
+        struct Expression (*primitiveProcedure)(struct Environment *env, struct List *args) = expression.value.primitiveProcedure;
+        return primitiveProcedure(env, list->cdr);
     case PROCEDURE:
         struct Procedure procedure = expression.value.procedure;
-        return executeProcedure(env, procedure, pair->cdr.value.pair);
+        return executeProcedure(env, procedure, list->cdr);
     default:
         printf("Error. Could not call value\n");
         exit(-1);
@@ -84,9 +84,9 @@ struct Expression evaluate(struct Environment *env, struct Expression expression
 {
     switch (expression.kind)
     {
-    case PAIR:
-        struct Pair *pair = expression.value.pair;
-        return evaluatePair(env, pair);
+    case LIST:
+        struct List *list = expression.value.list;
+        return evaluateList(env, list);
     case IDENTIFIER:
         char *identifier = expression.value.identifier;
         return evaluateIdentifier(env, identifier);
