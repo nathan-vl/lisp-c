@@ -26,9 +26,16 @@ struct Expression add(struct Environment *env, struct Pair *args)
 
 struct Expression subtract(struct Environment *env, struct Pair *args)
 {
+    checkArityAtLeastError(1, listLength(args));
+
     struct Expression eval = evaluate(env, args->car);
     double result = getNumber(env, &eval);
     args = args->cdr.value.pair;
+    if (args == NULL)
+    {
+        return numberExpression(-result);
+    }
+
     while (args != NULL)
     {
         struct Expression value = evaluate(env, args->car);

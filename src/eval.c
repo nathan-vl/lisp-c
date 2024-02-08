@@ -17,6 +17,15 @@ void checkArityError(size_t expected, size_t actual)
     }
 }
 
+void checkArityAtLeastError(size_t minimum, size_t actual)
+{
+    if (actual < minimum)
+    {
+        printf("Error. Arity difference in procedure. Expected at least %ld but got %ld.\n", minimum, actual);
+        exit(-1);
+    }
+}
+
 struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct Pair *args)
 {
     size_t argsLength = listLength(args);
@@ -29,8 +38,9 @@ struct Expression executeProcedure(struct Environment *env, struct Procedure pro
     struct Pair *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
     {
-        struct Expression expression = current->car;
-        defineVariable(&innerEnv, procedure.parameters[i], expression);
+        char *parameter = procedure.parameters[i];
+        struct Expression expression = evaluate(env, current->car);
+        defineVariable(&innerEnv, parameter, expression);
         current = current->cdr.value.pair;
     }
 
@@ -41,7 +51,7 @@ struct Expression evaluatePair(struct Environment *env, struct Pair *pair)
 {
     if (pair == NULL)
     {
-        return pairExpression(pair);
+        return pairExpression(NULL);
     }
 
     struct Expression expression = evaluate(env, pair->car);
