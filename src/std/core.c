@@ -15,18 +15,32 @@ struct Expression cons(struct Environment *env, struct List *args)
 
 struct Expression define(struct Environment *env, struct List *args)
 {
+    checkArityError(2, listLength(args));
+
     if (args->car.kind != IDENTIFIER)
     {
         printf("Error. Expected identifier.\n");
         exit(-1);
     }
 
-    checkArityError(2, listLength(args));
-
     char *identifier = args->car.value.identifier;
     struct Expression expression = args->cdr->car;
     defineVariable(env, identifier, expression);
     return booleanExpression(true);
+}
+
+struct Expression ifExpr(struct Environment *env, struct List *args)
+{
+    checkArityError(3, listLength(args));
+
+    struct Expression cond = evaluate(env, args->car);
+
+    if (isTruthy(&cond))
+    {
+        return evaluate(env, args->cdr->car);
+    }
+
+    return evaluate(env, args->cdr->cdr->car);
 }
 
 struct Expression lambda(struct Environment *env, struct List *args)

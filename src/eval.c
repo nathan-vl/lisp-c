@@ -74,7 +74,7 @@ struct Expression evaluateIdentifier(struct Environment *env, char *identifier)
     struct Expression *var = getVariable(env, identifier);
     if (var == NULL)
     {
-        printf("Error. Variable \"%s\" is not defined.\n", identifier);
+        printf("Error. \"%s\" is not defined.\n", identifier);
         exit(-1);
     }
     return evaluate(env, *var);

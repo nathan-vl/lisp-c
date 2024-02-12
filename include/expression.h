@@ -28,9 +28,9 @@ union ExpressionValue
     char character;
     char *identifier;
     struct List *list;
-    struct Procedure procedure;
-    void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
     double number;
+    void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
+    struct Procedure procedure;
     char *string;
 };
 

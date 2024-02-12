@@ -7,9 +7,10 @@
 #include "eval.h"
 #include "expression.h"
 
-// Base
+// Core
 struct Expression cons(struct Environment *env, struct List *args);
 struct Expression define(struct Environment *env, struct List *args);
+struct Expression ifExpr(struct Environment *env, struct List *args);
 struct Expression lambda(struct Environment *env, struct List *args);
 struct Expression print(struct Environment *env, struct List *args);
 struct Expression quote(struct Environment *env, struct List *list);
