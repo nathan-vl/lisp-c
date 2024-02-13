@@ -96,8 +96,8 @@ void freeExpression(struct Expression *expression)
     case STRING:
         free(expression->value.string);
         break;
-    case IDENTIFIER:
-        free(expression->value.identifier);
+    case SYMBOL:
+        free(expression->value.symbol);
         break;
     default:
         break;

@@ -20,11 +20,11 @@ struct Expression characterExpression(char character)
     return expression;
 }
 
-struct Expression identifierExpression(char *identifier)
+struct Expression symbolExpression(char *symbol)
 {
     struct Expression expression;
-    expression.kind = IDENTIFIER;
-    expression.value.identifier = identifier;
+    expression.kind = SYMBOL;
+    expression.value.symbol = symbol;
     return expression;
 }
 
@@ -110,7 +110,7 @@ void printProcedure(struct Procedure procedure)
 {
     printf("(lambda ");
 
-    // Identifiers
+    // Symbols
     printf("(");
     if (procedure.parametersLength > 0)
     {
@@ -140,8 +140,8 @@ void printExpression(struct Expression *expression)
     case CHARACTER:
         printf("%c", expression->value.character);
         break;
-    case IDENTIFIER:
-        printf("%s", expression->value.identifier);
+    case SYMBOL:
+        printf("%s", expression->value.symbol);
         break;
     case NUMBER:
         printf("%f", expression->value.number);

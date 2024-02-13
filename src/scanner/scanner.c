@@ -17,7 +17,7 @@ bool isDigit(char c)
     return c >= '0' && c <= '9';
 }
 
-bool isValidIdentifier(char c)
+bool isValidSymbolCharacter(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
@@ -85,16 +85,16 @@ struct Token parseNumber(struct ScannerStatus *status)
     return newNumberToken(copy);
 }
 
-enum TokenType identifierType(char *identifier)
+enum TokenType symbolType(char *symbol)
 {
-    if (strcmp(identifier, "f") == 0)
+    if (strcmp(symbol, "f") == 0)
         return T_F;
-    if (strcmp(identifier, "t") == 0)
+    if (strcmp(symbol, "t") == 0)
         return T_T;
-    return T_IDENTIFIER;
+    return T_SYMBOL;
 }
 
-struct Token parseIdentifier(struct ScannerStatus *status)
+struct Token parseSymbol(struct ScannerStatus *status)
 {
     char *start = status->source;
 
@@ -102,7 +102,7 @@ struct Token parseIdentifier(struct ScannerStatus *status)
     status->source++;
     status->col++;
 
-    while (isValidIdentifier(status->source[0]) || isDigit(status->source[0]))
+    while (isValidSymbolCharacter(status->source[0]) || isDigit(status->source[0]))
     {
         status->source++;
         status->col++;
@@ -113,7 +113,7 @@ struct Token parseIdentifier(struct ScannerStatus *status)
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
 
-    enum TokenType type = identifierType(copy);
+    enum TokenType type = symbolType(copy);
     switch (type)
     {
     case T_F:
@@ -143,7 +143,7 @@ void freeToken(struct Token token)
 struct Token parseCharacter(struct ScannerStatus *status)
 {
     char *start = status->source;
-    while (isValidIdentifier(status->source[0]))
+    while (isValidSymbolCharacter(status->source[0]))
     {
         status->source++;
         status->col++;
@@ -181,7 +181,7 @@ struct Token parseCharacter(struct ScannerStatus *status)
     else
     {
         free(copy);
-        lexicalError("Character identifier not recognized", status->line, status->col);
+        lexicalError("Character symbol not recognized", status->line, status->col);
     }
 
     free(copy);
@@ -277,9 +277,9 @@ void parseToken(struct ScannerStatus *status)
         {
             addToken(status, parseNumber(status));
         }
-        else if (isValidIdentifier(c))
+        else if (isValidSymbolCharacter(c))
         {
-            addToken(status, parseIdentifier(status));
+            addToken(status, parseSymbol(status));
         }
         else
         {

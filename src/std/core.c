@@ -17,15 +17,15 @@ struct Expression define(struct Environment *env, struct List *args)
 {
     checkArityError(2, listLength(args));
 
-    if (args->car.kind != IDENTIFIER)
+    if (args->car.kind != SYMBOL)
     {
-        printf("Error. Expected identifier.\n");
+        printf("Error. Expected symbol.\n");
         exit(-1);
     }
 
-    char *identifier = args->car.value.identifier;
+    char *symbol = args->car.value.symbol;
     struct Expression expression = args->cdr->car;
-    defineVariable(env, identifier, expression);
+    defineVariable(env, symbol, expression);
     return booleanExpression(true);
 }
 
@@ -66,17 +66,17 @@ struct Expression lambda(struct Environment *env, struct List *args)
         for (size_t i = 0; i < procedure.parametersLength; i++)
         {
             struct Expression car = currentParam->car;
-            if (car.kind != IDENTIFIER)
+            if (car.kind != SYMBOL)
             {
-                printf("Error. Expected identifier.\n");
+                printf("Error. Expected symbol.\n");
             }
-            procedure.parameters[i] = currentParam->car.value.identifier;
+            procedure.parameters[i] = currentParam->car.value.symbol;
             currentParam = currentParam->cdr;
         }
     }
 
     struct Expression body = args->cdr->car;
-    if (body.kind == IDENTIFIER)
+    if (body.kind == SYMBOL)
     {
         body = evaluate(env, body);
     }

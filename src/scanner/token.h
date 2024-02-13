@@ -13,9 +13,9 @@ enum TokenType
     T_CLOSE_PAREN,
     T_APOSTROPHE,
 
-    // Identifiers and literals
+    // Symbols and literals
     T_CHARACTER,
-    T_IDENTIFIER,
+    T_SYMBOL,
     T_NUMBER,
     T_STRING,
 };

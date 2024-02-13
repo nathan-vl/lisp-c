@@ -69,12 +69,12 @@ struct Expression evaluateList(struct Environment *env, struct List *list)
     }
 }
 
-struct Expression evaluateIdentifier(struct Environment *env, char *identifier)
+struct Expression evaluateSymbol(struct Environment *env, char *symbol)
 {
-    struct Expression *var = getVariable(env, identifier);
+    struct Expression *var = getVariable(env, symbol);
     if (var == NULL)
     {
-        printf("Error. \"%s\" is not defined.\n", identifier);
+        printf("Error. \"%s\" is not defined.\n", symbol);
         exit(-1);
     }
     return evaluate(env, *var);
@@ -87,9 +87,9 @@ struct Expression evaluate(struct Environment *env, struct Expression expression
     case LIST:
         struct List *list = expression.value.list;
         return evaluateList(env, list);
-    case IDENTIFIER:
-        char *identifier = expression.value.identifier;
-        return evaluateIdentifier(env, identifier);
+    case SYMBOL:
+        char *symbol = expression.value.symbol;
+        return evaluateSymbol(env, symbol);
     default:
         return expression;
     }

@@ -14,7 +14,7 @@ enum ExpressionKind
 {
     BOOLEAN,
     CHARACTER,
-    IDENTIFIER,
+    SYMBOL,
     LIST,
     NUMBER,
     PRIMITIVE_PROCEDURE,
@@ -26,7 +26,7 @@ union ExpressionValue
 {
     bool boolean;
     char character;
-    char *identifier;
+    char *symbol;
     struct List *list;
     double number;
     void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
@@ -48,7 +48,7 @@ struct List
 
 struct Expression booleanExpression(bool boolean);
 struct Expression characterExpression(char character);
-struct Expression identifierExpression(char *identifier);
+struct Expression symbolExpression(char *symbol);
 struct Expression listExpression(struct List *list);
 struct Expression numberExpression(double number);
 struct Expression procedureExpression(struct Procedure procedure);

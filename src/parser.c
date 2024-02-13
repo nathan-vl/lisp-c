@@ -53,7 +53,7 @@ struct List *parseList(struct SyntaxAnalyserStatus *status)
 
 struct Expression parseQuote(struct SyntaxAnalyserStatus *status)
 {
-    struct Expression car = identifierExpression("quote");
+    struct Expression car = symbolExpression("quote");
 
     struct List *cdr = newList(parseExpression(status), NULL);
 
@@ -76,8 +76,8 @@ struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
         return booleanExpression(true);
     case T_CHARACTER:
         return characterExpression(token.literal.value.character);
-    case T_IDENTIFIER:
-        return identifierExpression(token.lexeme);
+    case T_SYMBOL:
+        return symbolExpression(token.lexeme);
     case T_NUMBER:
         return numberExpression(token.literal.value.number);
     case T_STRING:
