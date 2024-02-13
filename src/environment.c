@@ -18,6 +18,18 @@ size_t hash(char *key)
     return hashedKey;
 }
 
+struct Environment createEnvironment(struct Environment *enclosingEnvironment)
+{
+    struct Environment env;
+    env.enclosingEnvironment = enclosingEnvironment;
+    for (size_t i = 0; i < HASH_SIZE; i++)
+    {
+        env.nodes[i] = NULL;
+    }
+
+    return env;
+}
+
 struct Expression *getVariable(struct Environment *env, char *key)
 {
     size_t index = hash(key);

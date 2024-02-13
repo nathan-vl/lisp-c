@@ -62,8 +62,7 @@ void interpreter()
 {
     char line[1024];
 
-    struct Environment env;
-    env.enclosingEnvironment = NULL;
+    struct Environment env = createEnvironment(NULL);
 
     loadPrimitiveProcedures(&env);
 
@@ -126,8 +125,7 @@ void parseFile(char *path)
         free(current);
     }
 
-    struct Environment env;
-    env.enclosingEnvironment = NULL;
+    struct Environment env = createEnvironment(NULL);
 
     loadPrimitiveProcedures(&env);
 

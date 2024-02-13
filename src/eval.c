@@ -32,8 +32,7 @@ struct Expression executeProcedure(struct Environment *env, struct Procedure pro
 
     checkArityError(procedure.parametersLength, argsLength);
 
-    struct Environment innerEnv;
-    innerEnv.enclosingEnvironment = env;
+    struct Environment innerEnv = createEnvironment(env);
 
     struct List *current = args;
     for (size_t i = 0; i < procedure.parametersLength; i++)
