@@ -8,5 +8,16 @@ struct TokenLinkedList
     struct TokenLinkedList *next;
 };
 
-struct TokenLinkedList *parse(char *source);
+struct ScannerStatus
+{
+    bool hasError;
+    char *source;
+    size_t line;
+    size_t col;
+
+    struct TokenLinkedList tokensHead;
+    struct TokenLinkedList *currentToken;
+};
+
+struct ScannerStatus parse(char *source);
 void freeToken(struct Token token);

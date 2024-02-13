@@ -6,10 +6,10 @@
 #include "scanner.h"
 #include "token.h"
 
-void lexicalError(char *error, size_t line, size_t col)
+void lexicalError(struct ScannerStatus *status, char *error)
 {
-    printf("Error [line %ld:%ld]. %s\n", line, col, error);
-    exit(-1);
+    printf("Error [line %ld:%ld]: %s.\n", status->line, status->col, error);
+    status->hasError = true;
 }
 
 bool isDigit(char c)
@@ -38,16 +38,6 @@ bool isValidSymbolCharacter(char c)
     }
 }
 
-struct ScannerStatus
-{
-    char *source;
-    int line;
-    int col;
-
-    struct TokenLinkedList tokensHead;
-    struct TokenLinkedList *currentToken;
-};
-
 struct Token parseString(struct ScannerStatus *status)
 {
     status->source++;
@@ -57,7 +47,8 @@ struct Token parseString(struct ScannerStatus *status)
     {
         if (status->source[0] == '\0')
         {
-            lexicalError("Unterminated string", status->line, status->col);
+            lexicalError(status, "Unterminated string");
+            return (struct Token){};
         }
         status->source++;
         status->col++;
@@ -197,7 +188,8 @@ struct Token parseCharacter(struct ScannerStatus *status)
     else
     {
         free(copy);
-        lexicalError("Character symbol not recognized", status->line, status->col);
+        lexicalError(status, "Character symbol not recognized");
+        return (struct Token){};
     }
 
     free(copy);
@@ -235,8 +227,8 @@ struct Token parseHash(struct ScannerStatus *status)
         token.literal.value.boolean = true;
         return token;
     default:
-        lexicalError("Unrecognized character after '#'", status->line, status->col);
-        exit(-1);
+        lexicalError(status, "Unrecognized character after '#'");
+        return (struct Token){};
     }
 }
 
@@ -299,24 +291,24 @@ void parseToken(struct ScannerStatus *status)
         }
         else
         {
-            lexicalError("Character not recognized", status->line, status->col);
-            exit(-1);
+            lexicalError(status, "Character not recognized");
         }
     }
 }
 
-struct TokenLinkedList *parse(char *source)
+struct ScannerStatus parse(char *source)
 {
     struct ScannerStatus status;
+    status.hasError = false;
     status.currentToken = &status.tokensHead;
     status.source = source;
     status.line = 1;
     status.col = 1;
 
-    while (status.source[0] != '\0')
+    while (status.source[0] != '\0' && !status.hasError)
     {
         parseToken(&status);
     }
 
-    return status.tokensHead.next;
+    return status;
 }

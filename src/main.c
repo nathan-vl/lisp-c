@@ -75,7 +75,13 @@ void interpreter()
             break;
         }
 
-        struct TokenLinkedList *tokens = parse(line);
+        struct ScannerStatus scannerStatus = parse(line);
+        if (scannerStatus.hasError)
+        {
+            continue;
+        }
+
+        struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
         struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
         while (tokens != NULL)
         {
@@ -114,9 +120,14 @@ void parseFile(char *path)
 {
     char *fileContents = readFile(path);
 
-    struct TokenLinkedList *tokens = parse(fileContents);
+    struct ScannerStatus scannerStatus = parse(fileContents);
+    if (scannerStatus.hasError)
+    {
+        return;
+    }
     free(fileContents);
 
+    struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
     struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
     while (tokens != NULL)
     {
