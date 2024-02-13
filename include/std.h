@@ -18,6 +18,8 @@ struct Expression quote(struct Environment *env, struct List *list);
 // Bool
 struct Expression equals(struct Environment *env, struct List *args);
 struct Expression negation(struct Environment *env, struct List *args);
+struct Expression andExpr(struct Environment *env, struct List *args);
+struct Expression orExpr(struct Environment *env, struct List *args);
 
 // Math
 struct Expression add(struct Environment *env, struct List *args);

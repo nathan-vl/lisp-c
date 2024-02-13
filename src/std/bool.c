@@ -42,3 +42,45 @@ struct Expression equals(struct Environment *env, struct List *args)
         return booleanExpression(false);
     }
 }
+
+struct Expression andExpr(struct Environment *env, struct List *args)
+{
+    if (listLength(args) == 0)
+    {
+        return booleanExpression(true);
+    }
+
+    while (args->cdr != NULL)
+    {
+        struct Expression current = evaluate(env, args->car);
+        if (!isTruthy(&current))
+        {
+            return current;
+        }
+
+        args = args->cdr;
+    }
+
+    return evaluate(env, args->car);
+}
+
+struct Expression orExpr(struct Environment *env, struct List *args)
+{
+    if (listLength(args) == 0)
+    {
+        return booleanExpression(false);
+    }
+
+    while (args->cdr != NULL)
+    {
+        struct Expression current = evaluate(env, args->car);
+        if (isTruthy(&current))
+        {
+            return current;
+        }
+
+        args = args->cdr;
+    }
+
+    return evaluate(env, args->car);
+}

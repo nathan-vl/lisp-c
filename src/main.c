@@ -15,6 +15,8 @@ void loadPrimitiveProcedures(struct Environment *env)
 
     defineVariable(env, "=", primitiveProcedureExpression(equals));
     defineVariable(env, "not", primitiveProcedureExpression(negation));
+    defineVariable(env, "and", primitiveProcedureExpression(andExpr));
+    defineVariable(env, "or", primitiveProcedureExpression(orExpr));
 
     defineVariable(env, "+", primitiveProcedureExpression(add));
     defineVariable(env, "-", primitiveProcedureExpression(subtract));
