@@ -19,7 +19,7 @@ bool isDigit(char c)
 
 bool isValidSymbolCharacter(char c)
 {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '+') || (c == '-') || (c == '*') || (c == '/');
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_') || (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '=');
 }
 
 struct ScannerStatus

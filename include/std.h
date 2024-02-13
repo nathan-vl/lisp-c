@@ -10,6 +10,7 @@
 // Core
 struct Expression cons(struct Environment *env, struct List *args);
 struct Expression define(struct Environment *env, struct List *args);
+struct Expression equals(struct Environment *env, struct List *args);
 struct Expression ifExpr(struct Environment *env, struct List *args);
 struct Expression lambda(struct Environment *env, struct List *args);
 struct Expression print(struct Environment *env, struct List *args);

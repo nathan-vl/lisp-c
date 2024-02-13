@@ -8,8 +8,9 @@ void loadPrimitiveProcedures(struct Environment *env)
 {
     defineVariable(env, "cons", primitiveProcedureExpression(cons));
     defineVariable(env, "define", primitiveProcedureExpression(define));
-    defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
+    defineVariable(env, "=", primitiveProcedureExpression(equals));
     defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
+    defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
     defineVariable(env, "print", primitiveProcedureExpression(print));
     defineVariable(env, "quote", primitiveProcedureExpression(quote));
 
