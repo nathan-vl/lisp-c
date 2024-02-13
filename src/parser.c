@@ -4,12 +4,11 @@
 #include "parser.h"
 #include "scanner.h"
 
-struct SyntaxAnalyserStatus
+void syntaxError(struct SyntaxAnalyserStatus *status, char *error)
 {
-    struct TokenLinkedList *current;
-};
-
-struct Expression parseExpression(struct SyntaxAnalyserStatus *status);
+    printf("Error [line %ld, column %ld]: %s.\n", status->line, status->col, error);
+    status->hasError = true;
+}
 
 struct List *newList(struct Expression car, struct List *cdr)
 {
@@ -24,12 +23,14 @@ struct Expression newListExpression(struct Expression car, struct List *cdr)
     return listExpression(newList(car, cdr));
 }
 
+struct Expression parseExpression(struct SyntaxAnalyserStatus *status);
+
 struct List *parseList(struct SyntaxAnalyserStatus *status)
 {
     if (status->current == NULL)
     {
-        printf("Error. Expected closing ')'\n");
-        exit(-1);
+        syntaxError(status, "Expected closing ')'");
+        return NULL;
     }
 
     if (status->current->token.type == T_CLOSE_PAREN)
@@ -70,6 +71,9 @@ struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
         return parseQuote(status);
     case T_OPEN_PAREN:
         return listExpression(parseList(status));
+    case T_CLOSE_PAREN:
+        syntaxError(status, "Unexpected ')'");
+        return (struct Expression){};
     case T_F:
         return booleanExpression(false);
     case T_T:
@@ -83,26 +87,33 @@ struct Expression parseExpression(struct SyntaxAnalyserStatus *status)
     case T_STRING:
         return stringExpression(token.literal.value.string);
     default:
-        printf("Error. Unrecognized token.\n");
-        exit(-1);
+        syntaxError(status, "Unrecognized token");
+        return (struct Expression){};
     }
 }
 
-struct ExpressionLinkedList *syntaxAnalyser(struct TokenLinkedList *tokens)
+struct SyntaxAnalyserStatus syntaxAnalyser(struct TokenLinkedList *tokens)
 {
     struct SyntaxAnalyserStatus status;
+    status.hasError = false;
+    status.line = 1;
+    status.col = 1;
     status.current = tokens;
 
     struct ExpressionLinkedList expressions;
     struct ExpressionLinkedList *current = &expressions;
 
-    while (status.current != NULL)
+    while (status.current != NULL && !status.hasError)
     {
+        status.line = status.current->token.line;
+        status.col = status.current->token.col;
         current->next = malloc(sizeof(struct ExpressionLinkedList));
         current = current->next;
         current->value = parseExpression(&status);
         current->next = NULL;
     }
 
-    return expressions.next;
+    status.expressions = expressions.next;
+
+    return status;
 }

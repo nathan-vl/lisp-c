@@ -8,7 +8,7 @@
 
 void lexicalError(struct ScannerStatus *status, char *error)
 {
-    printf("Error [line %ld:%ld]: %s.\n", status->line, status->col, error);
+    printf("Error [line %ld, column %ld]: %s.\n", status->line, status->col, error);
     status->hasError = true;
 }
 
@@ -62,7 +62,7 @@ struct Token parseString(struct ScannerStatus *status)
     status->source++;
     status->col++;
 
-    return newStringToken(copy);
+    return newStringToken(copy, status->line, status->col);
 }
 
 struct Token parseNumber(struct ScannerStatus *status)
@@ -89,7 +89,7 @@ struct Token parseNumber(struct ScannerStatus *status)
     char *copy = malloc(sizeof(char) * length);
     strncpy(copy, start, length);
     copy[length - 1] = '\0';
-    return newNumberToken(copy);
+    return newNumberToken(copy, status->line, status->col);
 }
 
 enum TokenType symbolType(char *symbol)
@@ -126,9 +126,9 @@ struct Token parseSymbol(struct ScannerStatus *status)
     case T_F:
     case T_T:
         free(copy);
-        return newToken(type, NULL);
+        return newToken(type, NULL, status->line, status->col);
     default:
-        return newToken(type, copy);
+        return newToken(type, copy, status->line, status->col);
     }
 }
 
@@ -159,7 +159,7 @@ struct Token parseCharacter(struct ScannerStatus *status)
     size_t length = (status->source - start) / sizeof(char);
     if (length == 1)
     {
-        struct Token token = newToken(T_CHARACTER, NULL);
+        struct Token token = newToken(T_CHARACTER, NULL, status->line, status->col);
         token.literal.kind = L_CHARACTER;
         token.literal.value.character = start[0];
         return token;
@@ -169,7 +169,7 @@ struct Token parseCharacter(struct ScannerStatus *status)
     strncpy(copy, start, length);
     copy[length] = '\0';
 
-    struct Token token = newToken(T_CHARACTER, NULL);
+    struct Token token = newToken(T_CHARACTER, NULL, status->line, status->col);
     if (strcmp(copy, "newline") == 0)
     {
         token.literal.kind = L_CHARACTER;
@@ -214,7 +214,7 @@ struct Token parseHash(struct ScannerStatus *status)
     case 'F':
         status->source++;
         status->col++;
-        token = newToken(T_F, NULL);
+        token = newToken(T_F, NULL, status->line, status->col);
         token.literal.kind = L_BOOLEAN;
         token.literal.value.boolean = false;
         return token;
@@ -222,7 +222,7 @@ struct Token parseHash(struct ScannerStatus *status)
     case 'T':
         status->source++;
         status->col++;
-        token = newToken(T_T, NULL);
+        token = newToken(T_T, NULL, status->line, status->col);
         token.literal.kind = L_BOOLEAN;
         token.literal.value.boolean = true;
         return token;
@@ -248,17 +248,17 @@ void parseToken(struct ScannerStatus *status)
     case '(':
         status->source++;
         status->col++;
-        addToken(status, newToken(T_OPEN_PAREN, "("));
+        addToken(status, newToken(T_OPEN_PAREN, "(", status->line, status->col));
         break;
     case ')':
         status->source++;
         status->col++;
-        addToken(status, newToken(T_CLOSE_PAREN, ")"));
+        addToken(status, newToken(T_CLOSE_PAREN, ")", status->line, status->col));
         break;
     case '\'':
         status->source++;
         status->col++;
-        addToken(status, newToken(T_APOSTROPHE, "'"));
+        addToken(status, newToken(T_APOSTROPHE, "'", status->line, status->col));
         break;
     case '"':
         addToken(status, parseString(status));

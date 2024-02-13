@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stddef.h>
 #include "literal.h"
 
 enum TokenType
@@ -25,8 +26,11 @@ struct Token
     enum TokenType type;
     char *lexeme;
     struct Literal literal;
+
+    size_t line;
+    size_t col;
 };
 
-struct Token newToken(enum TokenType type, char *lexeme);
-struct Token newStringToken(char *string);
-struct Token newNumberToken(char *strNumber);
+struct Token newToken(enum TokenType type, char *lexeme, size_t line, size_t col);
+struct Token newStringToken(char *string, size_t line, size_t col);
+struct Token newNumberToken(char *strNumber, size_t line, size_t col);

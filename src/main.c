@@ -80,9 +80,15 @@ void interpreter()
         {
             continue;
         }
-
         struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
-        struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
+
+        struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
+        if (syntaxStatus.hasError)
+        {
+            continue;
+        }
+        struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
+
         while (tokens != NULL)
         {
             struct TokenLinkedList *current = tokens;
@@ -126,9 +132,15 @@ void parseFile(char *path)
         return;
     }
     free(fileContents);
-
     struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
-    struct ExpressionLinkedList *expressions = syntaxAnalyser(tokens);
+
+    struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
+    if (syntaxStatus.hasError)
+    {
+        return;
+    }
+    struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
+
     while (tokens != NULL)
     {
         struct TokenLinkedList *current = tokens;
