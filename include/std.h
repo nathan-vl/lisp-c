@@ -10,13 +10,13 @@
 // Core
 struct Expression cons(struct Environment *env, struct List *args);
 struct Expression define(struct Environment *env, struct List *args);
-struct Expression equals(struct Environment *env, struct List *args);
 struct Expression ifExpr(struct Environment *env, struct List *args);
 struct Expression lambda(struct Environment *env, struct List *args);
 struct Expression print(struct Environment *env, struct List *args);
 struct Expression quote(struct Environment *env, struct List *list);
 
 // Bool
+struct Expression equals(struct Environment *env, struct List *args);
 struct Expression negation(struct Environment *env, struct List *args);
 
 // Math
@@ -24,3 +24,7 @@ struct Expression add(struct Environment *env, struct List *args);
 struct Expression subtract(struct Environment *env, struct List *args);
 struct Expression multiply(struct Environment *env, struct List *args);
 struct Expression divide(struct Environment *env, struct List *args);
+struct Expression lessThan(struct Environment *env, struct List *args);
+struct Expression greaterThan(struct Environment *env, struct List *args);
+struct Expression lessEqualThan(struct Environment *env, struct List *args);
+struct Expression greaterEqualThan(struct Environment *env, struct List *args);

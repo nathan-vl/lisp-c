@@ -8,18 +8,22 @@ void loadPrimitiveProcedures(struct Environment *env)
 {
     defineVariable(env, "cons", primitiveProcedureExpression(cons));
     defineVariable(env, "define", primitiveProcedureExpression(define));
-    defineVariable(env, "=", primitiveProcedureExpression(equals));
     defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
     defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
     defineVariable(env, "print", primitiveProcedureExpression(print));
     defineVariable(env, "quote", primitiveProcedureExpression(quote));
 
+    defineVariable(env, "=", primitiveProcedureExpression(equals));
+    defineVariable(env, "not", primitiveProcedureExpression(negation));
+
     defineVariable(env, "+", primitiveProcedureExpression(add));
     defineVariable(env, "-", primitiveProcedureExpression(subtract));
     defineVariable(env, "*", primitiveProcedureExpression(multiply));
     defineVariable(env, "/", primitiveProcedureExpression(divide));
-
-    defineVariable(env, "not", primitiveProcedureExpression(negation));
+    defineVariable(env, "<", primitiveProcedureExpression(lessThan));
+    defineVariable(env, ">", primitiveProcedureExpression(greaterThan));
+    defineVariable(env, "<=", primitiveProcedureExpression(lessEqualThan));
+    defineVariable(env, ">=", primitiveProcedureExpression(greaterEqualThan));
 }
 
 char *readFile(char *path)
