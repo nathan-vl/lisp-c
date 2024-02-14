@@ -34,6 +34,63 @@ struct Expression define(struct Environment *env, struct List *args)
     return booleanExpression(true);
 }
 
+struct Expression defmacro(struct Environment *env, struct List *args)
+{
+    checkArityError(3, listLength(args));
+
+    if (args->car.kind != SYMBOL)
+    {
+        printf("Error. Expected macro name.\n");
+        exit(-1);
+    }
+
+    char *macroName = args->car.value.symbol;
+
+    if (args->cdr->car.kind != LIST)
+    {
+        printf("Error. Expected parameters list.\n");
+        exit(-1);
+    }
+
+    struct List *parametersList = args->cdr->car.value.list;
+    size_t parametersLength = listLength(parametersList);
+
+    char **parameters = NULL;
+    if (parametersLength > 0)
+    {
+        parameters = malloc(sizeof(char *) * parametersLength);
+        for (size_t i = 0; i < parametersLength; i++)
+        {
+            if (parametersList->car.kind != SYMBOL)
+            {
+                printf("Error. Expected symbol in parameter list.\n");
+                exit(-1);
+            }
+            parameters[i] = parametersList->car.value.symbol;
+            parametersList = parametersList->cdr;
+        }
+    }
+
+    if (args->cdr->cdr->car.kind != LIST)
+    {
+        printf("Error. Expected list in macro body.\n");
+        exit(-1);
+    }
+
+    struct Macro macro;
+    macro.parameters = parameters;
+    macro.parametersLength = parametersLength;
+    macro.body = evaluate(env, args->cdr->cdr->car).value.list;
+
+    struct Expression expr;
+    expr.kind = MACRO;
+    expr.value.macro = macro;
+
+    defineVariable(env, macroName, expr);
+
+    return booleanExpression(true);
+}
+
 struct Expression ifExpr(struct Environment *env, struct List *args)
 {
     checkArityError(3, listLength(args));

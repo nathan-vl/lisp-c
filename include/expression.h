@@ -3,6 +3,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+struct Macro
+{
+    char **parameters;
+    size_t parametersLength;
+    struct List *body;
+};
+
 struct Procedure
 {
     char **parameters;
@@ -17,6 +24,7 @@ enum ExpressionKind
     SYMBOL,
     LIST,
     NUMBER,
+    MACRO,
     PRIMITIVE_PROCEDURE,
     PROCEDURE,
     STRING,
@@ -28,6 +36,7 @@ union ExpressionValue
     char character;
     char *symbol;
     struct List *list;
+    struct Macro macro;
     double number;
     void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
     struct Procedure procedure;

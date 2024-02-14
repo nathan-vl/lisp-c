@@ -28,14 +28,14 @@ struct Expression equals(struct Environment *env, struct List *args)
         return booleanExpression(firstExpr.value.boolean == secondExpr.value.boolean);
     case CHARACTER:
         return booleanExpression(firstExpr.value.character == secondExpr.value.character);
-    case SYMBOL:
-        return booleanExpression(strcmp(firstExpr.value.symbol, secondExpr.value.symbol) == 0);
     case NUMBER:
         return booleanExpression(firstExpr.value.number == secondExpr.value.number);
     case PRIMITIVE_PROCEDURE:
         return booleanExpression(strcmp(args->car.value.symbol, args->cdr->car.value.symbol) == 0);
     case STRING:
         return booleanExpression(strcmp(firstExpr.value.string, secondExpr.value.string) == 0);
+    case SYMBOL:
+        return booleanExpression(strcmp(firstExpr.value.symbol, secondExpr.value.symbol) == 0);
     case LIST:
     case PROCEDURE:
     default:

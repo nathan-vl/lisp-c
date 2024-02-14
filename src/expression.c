@@ -131,29 +131,32 @@ void printExpression(struct Expression *expression)
 {
     switch (expression->kind)
     {
-    case LIST:
-        printList(expression->value.list);
-        break;
     case BOOLEAN:
         printf("%s", expression->value.boolean ? "#t" : "#f");
         break;
     case CHARACTER:
         printf("%c", expression->value.character);
         break;
-    case SYMBOL:
-        printf("%s", expression->value.symbol);
+    case LIST:
+        printList(expression->value.list);
+        break;
+    case MACRO:
+        printf("<macro>");
         break;
     case NUMBER:
         printf("%f", expression->value.number);
         break;
-    case PROCEDURE:
-        printProcedure(expression->value.procedure);
-        break;
     case PRIMITIVE_PROCEDURE:
         printf("<primitive procedure>");
         break;
+    case PROCEDURE:
+        printProcedure(expression->value.procedure);
+        break;
     case STRING:
         printf("\"%s\"", expression->value.string);
+        break;
+    case SYMBOL:
+        printf("%s", expression->value.symbol);
         break;
     }
 }

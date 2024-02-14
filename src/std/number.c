@@ -5,7 +5,7 @@ double getNumber(struct Environment *env, struct Expression *expression)
     struct Expression eval = evaluate(env, *expression);
     if (!isNumber(&eval))
     {
-        printf("Error. Expression should eval to number type.\n");
+        printf("Error. Expression should evaluate to number type.\n");
         exit(-1);
     }
     return eval.value.number;

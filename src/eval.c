@@ -26,6 +26,49 @@ void checkArityAtLeastError(size_t minimum, size_t actual)
     }
 }
 
+struct List *replace(struct Environment *env, struct Macro macro, struct List *args)
+{
+    struct List *body = macro.body;
+
+    struct List *current = body;
+    while (current != NULL)
+    {
+        if (current->car.kind == LIST)
+        {
+            struct Macro inner = macro;
+            inner.body = current->car.value.list;
+            current->car.value.list = replace(env, inner, args);
+        }
+        else if (current->car.kind == SYMBOL)
+        {
+            struct Expression expr = evaluate(env, current->car);
+            current->car = expr;
+        }
+
+        current = current->cdr;
+    }
+
+    return body;
+}
+
+struct Expression executeMacro(struct Environment *env, struct Macro macro, struct List *args)
+{
+    checkArityError(macro.parametersLength, listLength(args));
+
+    struct Environment innerEnv = createEnvironment(env);
+
+    struct List *current = args;
+    for (size_t i = 0; i < macro.parametersLength; i++)
+    {
+        char *parameter = macro.parameters[i];
+        defineVariable(&innerEnv, parameter, current->car);
+        current = current->cdr;
+    }
+
+    struct List *replacedBody = replace(&innerEnv, macro, args);
+    return evaluate(env, listExpression(replacedBody));
+}
+
 struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct List *args)
 {
     size_t argsLength = listLength(args);
@@ -56,6 +99,9 @@ struct Expression evaluateList(struct Environment *env, struct List *list)
     struct Expression expression = evaluate(env, list->car);
     switch (expression.kind)
     {
+    case MACRO:
+        struct Macro macro = expression.value.macro;
+        return executeMacro(env, macro, list->cdr);
     case PRIMITIVE_PROCEDURE:
         struct Expression (*primitiveProcedure)(struct Environment *env, struct List *args) = expression.value.primitiveProcedure;
         return primitiveProcedure(env, list->cdr);
@@ -76,7 +122,7 @@ struct Expression evaluateSymbol(struct Environment *env, char *symbol)
         printf("Error. \"%s\" is not defined.\n", symbol);
         exit(-1);
     }
-    return evaluate(env, *var);
+    return *var;
 }
 
 struct Expression evaluate(struct Environment *env, struct Expression expression)
