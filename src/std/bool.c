@@ -43,6 +43,94 @@ struct Expression equals(struct Environment *env, struct List *args)
     }
 }
 
+struct Expression lessThan(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression first = evaluate(env, args->car);
+    struct Expression second = evaluate(env, args->cdr->car);
+
+    if (first.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 1.\n");
+        exit(-1);
+    }
+
+    if (second.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 2.\n");
+        exit(-1);
+    }
+
+    return booleanExpression(first.value.number < second.value.number);
+}
+
+struct Expression greaterThan(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression first = evaluate(env, args->car);
+    struct Expression second = evaluate(env, args->cdr->car);
+
+    if (first.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 1.\n");
+        exit(-1);
+    }
+
+    if (second.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 2.\n");
+        exit(-1);
+    }
+
+    return booleanExpression(first.value.number > second.value.number);
+}
+
+struct Expression lessEqualThan(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression first = evaluate(env, args->car);
+    struct Expression second = evaluate(env, args->cdr->car);
+
+    if (first.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 1.\n");
+        exit(-1);
+    }
+
+    if (second.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 2.\n");
+        exit(-1);
+    }
+
+    return booleanExpression(first.value.number <= second.value.number);
+}
+
+struct Expression greaterEqualThan(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression first = evaluate(env, args->car);
+    struct Expression second = evaluate(env, args->cdr->car);
+
+    if (first.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 1.\n");
+        exit(-1);
+    }
+
+    if (second.kind != NUMBER)
+    {
+        printf("Error. Expected number in arg 2.\n");
+        exit(-1);
+    }
+
+    return booleanExpression(first.value.number >= second.value.number);
+}
+
 struct Expression andExpr(struct Environment *env, struct List *args)
 {
     if (listLength(args) == 0)

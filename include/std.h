@@ -20,6 +20,10 @@ struct Expression whileExpr(struct Environment *env, struct List *args);
 
 // Bool
 struct Expression equals(struct Environment *env, struct List *args);
+struct Expression lessThan(struct Environment *env, struct List *args);
+struct Expression greaterThan(struct Environment *env, struct List *args);
+struct Expression lessEqualThan(struct Environment *env, struct List *args);
+struct Expression greaterEqualThan(struct Environment *env, struct List *args);
 struct Expression negation(struct Environment *env, struct List *args);
 struct Expression andExpr(struct Environment *env, struct List *args);
 struct Expression orExpr(struct Environment *env, struct List *args);
@@ -29,7 +33,3 @@ struct Expression add(struct Environment *env, struct List *args);
 struct Expression subtract(struct Environment *env, struct List *args);
 struct Expression multiply(struct Environment *env, struct List *args);
 struct Expression divide(struct Environment *env, struct List *args);
-struct Expression lessThan(struct Environment *env, struct List *args);
-struct Expression greaterThan(struct Environment *env, struct List *args);
-struct Expression lessEqualThan(struct Environment *env, struct List *args);
-struct Expression greaterEqualThan(struct Environment *env, struct List *args);

@@ -17,6 +17,10 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "while", primitiveProcedureExpression(whileExpr));
 
     defineVariable(env, "=", primitiveProcedureExpression(equals));
+    defineVariable(env, "<", primitiveProcedureExpression(lessThan));
+    defineVariable(env, ">", primitiveProcedureExpression(greaterThan));
+    defineVariable(env, "<=", primitiveProcedureExpression(lessEqualThan));
+    defineVariable(env, ">=", primitiveProcedureExpression(greaterEqualThan));
     defineVariable(env, "not", primitiveProcedureExpression(negation));
     defineVariable(env, "and", primitiveProcedureExpression(andExpr));
     defineVariable(env, "or", primitiveProcedureExpression(orExpr));
@@ -25,10 +29,6 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "-", primitiveProcedureExpression(subtract));
     defineVariable(env, "*", primitiveProcedureExpression(multiply));
     defineVariable(env, "/", primitiveProcedureExpression(divide));
-    defineVariable(env, "<", primitiveProcedureExpression(lessThan));
-    defineVariable(env, ">", primitiveProcedureExpression(greaterThan));
-    defineVariable(env, "<=", primitiveProcedureExpression(lessEqualThan));
-    defineVariable(env, ">=", primitiveProcedureExpression(greaterEqualThan));
 }
 
 char *readFile(char *path)
