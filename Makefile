@@ -3,7 +3,7 @@ INCLUDES = -I include \
 	-I src/parser \
 	-I src/scanner \
 	-I src/std
-CFLAGS = $(INCLUDES) --std=c11
+CFLAGS = $(INCLUDES) --std=c11 -lm
 DEBUG_FLAGS = -g -O0 -Wall -Wextra -save-temps -Wshadow -Wfloat-equal -Wundef -fsanitize=address
 RELEASE_FLAGS = -O3
 

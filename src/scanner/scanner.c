@@ -22,6 +22,7 @@ bool isValidSymbolCharacter(char c)
     switch (c)
     {
     case '!':
+    case '%':
     case '*':
     case '+':
     case '-':

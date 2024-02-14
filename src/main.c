@@ -29,6 +29,8 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "-", primitiveProcedureExpression(subtract));
     defineVariable(env, "*", primitiveProcedureExpression(multiply));
     defineVariable(env, "/", primitiveProcedureExpression(divide));
+    defineVariable(env, "pow", primitiveProcedureExpression(exponentiation));
+    defineVariable(env, "%", primitiveProcedureExpression(modulo));
 }
 
 char *readFile(char *path)

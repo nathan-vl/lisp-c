@@ -33,3 +33,5 @@ struct Expression add(struct Environment *env, struct List *args);
 struct Expression subtract(struct Environment *env, struct List *args);
 struct Expression multiply(struct Environment *env, struct List *args);
 struct Expression divide(struct Environment *env, struct List *args);
+struct Expression exponentiation(struct Environment *env, struct List *args);
+struct Expression modulo(struct Environment *env, struct List *args);

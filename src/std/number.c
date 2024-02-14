@@ -1,4 +1,5 @@
 #include "std.h"
+#include "math.h"
 
 double getNumber(struct Environment *env, struct Expression *expression)
 {
@@ -72,4 +73,48 @@ struct Expression divide(struct Environment *env, struct List *args)
         args = args->cdr;
     }
     return numberExpression(result);
+}
+
+struct Expression exponentiation(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression firstExpr = evaluate(env, args->car);
+    if (firstExpr.kind != NUMBER)
+    {
+        printf("Error. Expected number for first argument.\n");
+        exit(-1);
+    }
+    args = args->cdr;
+
+    struct Expression secondExpr = evaluate(env, args->car);
+    if (secondExpr.kind != NUMBER)
+    {
+        printf("Error. Expected number for second argument.\n");
+        exit(-1);
+    }
+
+    return numberExpression(powl(firstExpr.value.number, secondExpr.value.number));
+}
+
+struct Expression modulo(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    struct Expression firstExpr = evaluate(env, args->car);
+    if (firstExpr.kind != NUMBER)
+    {
+        printf("Error. Expected number for first argument.\n");
+        exit(-1);
+    }
+    args = args->cdr;
+
+    struct Expression secondExpr = evaluate(env, args->car);
+    if (secondExpr.kind != NUMBER)
+    {
+        printf("Error. Expected number for second argument.\n");
+        exit(-1);
+    }
+
+    return numberExpression(fmod(firstExpr.value.number, secondExpr.value.number));
 }
