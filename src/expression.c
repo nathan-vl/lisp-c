@@ -71,9 +71,9 @@ size_t listLength(struct List *list)
     return length;
 }
 
-bool isTruthy(struct Expression *expression)
+bool isTruthy(struct Expression expression)
 {
-    return expression->kind != BOOLEAN || expression->value.boolean;
+    return expression.kind != BOOLEAN || expression.value.boolean;
 }
 
 bool isNumber(struct Expression *expression)

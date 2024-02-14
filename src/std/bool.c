@@ -7,7 +7,7 @@ struct Expression negation(struct Environment *env, struct List *args)
     checkArityError(1, listLength(args));
 
     struct Expression expression = evaluate(env, args->car);
-    return booleanExpression(!isTruthy(&expression));
+    return booleanExpression(!isTruthy(expression));
 }
 
 struct Expression equals(struct Environment *env, struct List *args)
@@ -53,7 +53,7 @@ struct Expression andExpr(struct Environment *env, struct List *args)
     while (args->cdr != NULL)
     {
         struct Expression current = evaluate(env, args->car);
-        if (!isTruthy(&current))
+        if (!isTruthy(current))
         {
             return current;
         }
@@ -74,7 +74,7 @@ struct Expression orExpr(struct Environment *env, struct List *args)
     while (args->cdr != NULL)
     {
         struct Expression current = evaluate(env, args->car);
-        if (isTruthy(&current))
+        if (isTruthy(current))
         {
             return current;
         }

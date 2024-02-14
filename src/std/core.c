@@ -25,6 +25,11 @@ struct Expression define(struct Environment *env, struct List *args)
 
     char *symbol = args->car.value.symbol;
     struct Expression expression = args->cdr->car;
+    if (getVariable(env, symbol) != NULL)
+    {
+        printf("Error. Variable is already defined.\n");
+        exit(-1);
+    }
     defineVariable(env, symbol, expression);
     return booleanExpression(true);
 }
@@ -33,9 +38,7 @@ struct Expression ifExpr(struct Environment *env, struct List *args)
 {
     checkArityError(3, listLength(args));
 
-    struct Expression cond = evaluate(env, args->car);
-
-    if (isTruthy(&cond))
+    if (isTruthy(evaluate(env, args->car)))
     {
         return evaluate(env, args->cdr->car);
     }
@@ -111,4 +114,50 @@ struct Expression print(struct Environment *env, struct List *args)
 struct Expression quote(struct Environment *env, struct List *list)
 {
     return env == NULL ? list->car : list->car;
+}
+
+struct Expression setValue(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    if (args->car.kind != SYMBOL)
+    {
+        printf("Error. Expected identifier.\n");
+        exit(-1);
+    }
+
+    char *symbol = args->car.value.symbol;
+
+    if (getVariable(env, symbol) == NULL)
+    {
+        printf("Error. Variable is not defined.\n");
+        exit(-1);
+    }
+
+    defineVariable(env, symbol, evaluate(env, args->cdr->car));
+
+    return booleanExpression(true);
+}
+
+struct Expression whileExpr(struct Environment *env, struct List *args)
+{
+    checkArityError(2, listLength(args));
+
+    if (args->cdr->car.kind != LIST)
+    {
+        printf("Error. Expected list of expressions.\n");
+        exit(-1);
+    }
+
+    while (isTruthy(evaluate(env, args->car)))
+    {
+        struct List *body = args->cdr->car.value.list;
+        while (body != NULL)
+        {
+            evaluate(env, body->car);
+            body = body->cdr;
+        }
+    }
+
+    return booleanExpression(true);
 }

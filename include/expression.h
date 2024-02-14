@@ -56,7 +56,7 @@ struct Expression stringExpression(char *string);
 
 size_t listLength(struct List *list);
 
-bool isTruthy(struct Expression *expression);
+bool isTruthy(struct Expression expression);
 bool isNumber(struct Expression *expression);
 bool isList(struct Expression *expression);
 bool isList(struct Expression *expression);
