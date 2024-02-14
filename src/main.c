@@ -58,6 +58,32 @@ char *readFile(char *path)
     return buffer;
 }
 
+struct ExpressionLinkedList *sourceToExpressions(char *source)
+{
+    struct ScannerStatus scannerStatus = parse(source);
+    if (scannerStatus.hasError)
+    {
+        return NULL;
+    }
+    struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
+
+    struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
+    if (syntaxStatus.hasError)
+    {
+        return NULL;
+    }
+    struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
+
+    while (tokens != NULL)
+    {
+        struct TokenLinkedList *current = tokens;
+        tokens = tokens->next;
+        free(current);
+    }
+
+    return expressions;
+}
+
 void interpreter()
 {
     char line[1024];
@@ -75,33 +101,12 @@ void interpreter()
             break;
         }
 
-        struct ScannerStatus scannerStatus = parse(line);
-        if (scannerStatus.hasError)
-        {
-            continue;
-        }
-        struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
-
-        struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
-        if (syntaxStatus.hasError)
-        {
-            continue;
-        }
-        struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
-
-        while (tokens != NULL)
-        {
-            struct TokenLinkedList *current = tokens;
-            tokens = tokens->next;
-            free(current);
-        }
-
+        struct ExpressionLinkedList *expressions = sourceToExpressions(line);
         while (expressions != NULL)
         {
             struct Expression expressionEval = evaluate(&env, expressions->value);
             printExpression(&expressionEval);
             printf("\n");
-
             expressions = expressions->next;
         }
     }
@@ -126,42 +131,17 @@ void parseFile(char *path)
 {
     char *fileContents = readFile(path);
 
-    struct ScannerStatus scannerStatus = parse(fileContents);
-    if (scannerStatus.hasError)
-    {
-        return;
-    }
-    free(fileContents);
-    struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
-
-    struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
-    if (syntaxStatus.hasError)
-    {
-        return;
-    }
-    struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
-
-    while (tokens != NULL)
-    {
-        struct TokenLinkedList *current = tokens;
-        tokens = tokens->next;
-        free(current);
-    }
-
+    struct ExpressionLinkedList *expressions = sourceToExpressions(fileContents);
     struct Environment env = createEnvironment(NULL);
-
     loadPrimitiveProcedures(&env);
 
     while (expressions != NULL)
     {
         evaluate(&env, expressions->value);
-        struct ExpressionLinkedList *current = expressions;
-
         expressions = expressions->next;
-
-        freeExpression(&current->value);
-        free(current);
     }
+
+    free(fileContents);
 }
 
 int main(int argc, char **argv)

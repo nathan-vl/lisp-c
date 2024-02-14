@@ -132,7 +132,6 @@ struct Token parseSymbol(struct ScannerStatus *status)
     }
 }
 
-// TODO: Check if tokens literals should be free'd now
 void freeToken(struct Token token)
 {
     switch (token.type)

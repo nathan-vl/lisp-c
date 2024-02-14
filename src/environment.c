@@ -64,11 +64,6 @@ void defineVariable(struct Environment *env, char *key, struct Expression value)
         node = node->next;
     }
 
-    // TODO: Free previous expression
-    // if (strcmp(key, node->key) == 0)
-    // {
-    // }
-
     struct VariableNode *newNode = malloc(sizeof(struct VariableNode));
     newNode->key = key;
     newNode->value = value;
