@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include "environment.h"
+#include "std.h"
+#include "utils.h"
 
 size_t hash(char *key)
 {
@@ -26,6 +28,54 @@ struct Environment createEnvironment(struct Environment *enclosingEnvironment)
     {
         env.nodes[i] = NULL;
     }
+
+    return env;
+}
+
+struct Environment bootstrapEnvironment()
+{
+    struct Environment env = createBaseEnvironment();
+
+    includeFile(&env, "src/std/core.nn");
+
+    return env;
+}
+
+void loadPrimitiveProcedures(struct Environment *env)
+{
+    defineVariable(env, "cons", primitiveProcedureExpression(cons));
+    defineVariable(env, "define", primitiveProcedureExpression(define));
+    defineVariable(env, "defmacro", primitiveProcedureExpression(defmacro));
+    defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
+    defineVariable(env, "include", primitiveProcedureExpression(include));
+    defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
+    defineVariable(env, "print", primitiveProcedureExpression(print));
+    defineVariable(env, "quote", primitiveProcedureExpression(quote));
+    defineVariable(env, "set!", primitiveProcedureExpression(setValue));
+    defineVariable(env, "while", primitiveProcedureExpression(whileExpr));
+
+    defineVariable(env, "=", primitiveProcedureExpression(equals));
+    defineVariable(env, "<", primitiveProcedureExpression(lessThan));
+    defineVariable(env, ">", primitiveProcedureExpression(greaterThan));
+    defineVariable(env, "<=", primitiveProcedureExpression(lessEqualThan));
+    defineVariable(env, ">=", primitiveProcedureExpression(greaterEqualThan));
+    defineVariable(env, "not", primitiveProcedureExpression(negation));
+    defineVariable(env, "and", primitiveProcedureExpression(andExpr));
+    defineVariable(env, "or", primitiveProcedureExpression(orExpr));
+
+    defineVariable(env, "+", primitiveProcedureExpression(add));
+    defineVariable(env, "-", primitiveProcedureExpression(subtract));
+    defineVariable(env, "*", primitiveProcedureExpression(multiply));
+    defineVariable(env, "/", primitiveProcedureExpression(divide));
+    defineVariable(env, "pow", primitiveProcedureExpression(exponentiation));
+    defineVariable(env, "%", primitiveProcedureExpression(modulo));
+}
+
+struct Environment createBaseEnvironment()
+{
+    struct Environment env = createEnvironment(NULL);
+
+    loadPrimitiveProcedures(&env);
 
     return env;
 }

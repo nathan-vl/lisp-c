@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "environment.h"
+#include "eval.h"
 #include "parser.h"
 #include "scanner.h"
 #include "utils.h"
@@ -33,6 +35,32 @@ char *readFile(char *path)
     fclose(file);
 
     return buffer;
+}
+
+void includeFile(struct Environment *environment, char *path)
+{
+    char *fileContents = readFile(path);
+
+    struct ExpressionLinkedList *expressions = sourceToExpressions(fileContents);
+    struct Environment innerEnv = createBaseEnvironment();
+
+    while (expressions != NULL)
+    {
+        evaluate(&innerEnv, expressions->value);
+        expressions = expressions->next;
+    }
+
+    free(fileContents);
+
+    for (size_t i = 0; i < HASH_SIZE; i++)
+    {
+        struct VariableNode *current = innerEnv.nodes[i];
+        while (current != NULL)
+        {
+            defineVariable(environment, current->key, current->value);
+            current = current->next;
+        }
+    }
 }
 
 struct ExpressionLinkedList *sourceToExpressions(char *source)

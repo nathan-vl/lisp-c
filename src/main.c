@@ -2,46 +2,13 @@
 #include <stdlib.h>
 
 #include "eval.h"
-#include "std.h"
 #include "utils.h"
-
-void loadPrimitiveProcedures(struct Environment *env)
-{
-    defineVariable(env, "cons", primitiveProcedureExpression(cons));
-    defineVariable(env, "define", primitiveProcedureExpression(define));
-    defineVariable(env, "defmacro", primitiveProcedureExpression(defmacro));
-    defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
-    defineVariable(env, "include", primitiveProcedureExpression(include));
-    defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
-    defineVariable(env, "print", primitiveProcedureExpression(print));
-    defineVariable(env, "quote", primitiveProcedureExpression(quote));
-    defineVariable(env, "set!", primitiveProcedureExpression(setValue));
-    defineVariable(env, "while", primitiveProcedureExpression(whileExpr));
-
-    defineVariable(env, "=", primitiveProcedureExpression(equals));
-    defineVariable(env, "<", primitiveProcedureExpression(lessThan));
-    defineVariable(env, ">", primitiveProcedureExpression(greaterThan));
-    defineVariable(env, "<=", primitiveProcedureExpression(lessEqualThan));
-    defineVariable(env, ">=", primitiveProcedureExpression(greaterEqualThan));
-    defineVariable(env, "not", primitiveProcedureExpression(negation));
-    defineVariable(env, "and", primitiveProcedureExpression(andExpr));
-    defineVariable(env, "or", primitiveProcedureExpression(orExpr));
-
-    defineVariable(env, "+", primitiveProcedureExpression(add));
-    defineVariable(env, "-", primitiveProcedureExpression(subtract));
-    defineVariable(env, "*", primitiveProcedureExpression(multiply));
-    defineVariable(env, "/", primitiveProcedureExpression(divide));
-    defineVariable(env, "pow", primitiveProcedureExpression(exponentiation));
-    defineVariable(env, "%", primitiveProcedureExpression(modulo));
-}
 
 void interpreter()
 {
     char line[1024];
 
-    struct Environment env = createEnvironment(NULL);
-
-    loadPrimitiveProcedures(&env);
+    struct Environment env = bootstrapEnvironment();
 
     for (;;)
     {
@@ -83,8 +50,7 @@ void parseFile(char *path)
     char *fileContents = readFile(path);
 
     struct ExpressionLinkedList *expressions = sourceToExpressions(fileContents);
-    struct Environment env = createEnvironment(NULL);
-    loadPrimitiveProcedures(&env);
+    struct Environment env = bootstrapEnvironment();
 
     while (expressions != NULL)
     {

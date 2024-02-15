@@ -116,29 +116,7 @@ struct Expression include(struct Environment *env, struct List *args)
 
     char *path = args->car.value.string;
 
-    char *fileContents = readFile(path);
-
-    struct ExpressionLinkedList *expressions = sourceToExpressions(fileContents);
-    struct Environment innerEnv = createEnvironment(NULL);
-    loadPrimitiveProcedures(&innerEnv);
-
-    while (expressions != NULL)
-    {
-        evaluate(&innerEnv, expressions->value);
-        expressions = expressions->next;
-    }
-
-    free(fileContents);
-
-    for (size_t i = 0; i < HASH_SIZE; i++)
-    {
-        struct VariableNode *current = innerEnv.nodes[i];
-        while (current != NULL)
-        {
-            defineVariable(env, current->key, current->value);
-            current = current->next;
-        }
-    }
+    includeFile(env, path);
 
     return booleanExpression(true);
 }
