@@ -85,7 +85,7 @@ struct Expression executeProcedure(struct Environment *env, struct Procedure pro
         current = current->cdr;
     }
 
-    return evaluate(&innerEnv, listExpression(procedure.body));
+    return evaluate(&innerEnv, *procedure.body);
 }
 
 struct Expression evaluateList(struct Environment *env, struct List *list)

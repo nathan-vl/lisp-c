@@ -122,7 +122,7 @@ void printProcedure(struct Procedure procedure)
     }
     printf(") ");
 
-    printList(procedure.body);
+    printExpression(procedure.body);
 
     printf(")");
 }

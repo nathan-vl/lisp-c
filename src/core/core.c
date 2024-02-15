@@ -153,19 +153,8 @@ struct Expression lambda(struct Environment *env, struct List *args)
         }
     }
 
-    struct Expression body = args->cdr->car;
-    if (body.kind == SYMBOL)
-    {
-        body = evaluate(env, body);
-    }
-
-    if (body.kind != LIST)
-    {
-        printf("Error. Body should be a list.\n");
-        exit(-1);
-    }
-
-    procedure.body = body.value.list;
+    procedure.body = malloc(sizeof(struct Expression));
+    *procedure.body = args->cdr->car;
     return procedureExpression(procedure);
 }
 

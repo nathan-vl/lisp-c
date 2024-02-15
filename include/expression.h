@@ -14,7 +14,7 @@ struct Procedure
 {
     char **parameters;
     size_t parametersLength;
-    struct List *body;
+    struct Expression *body;
 };
 
 enum ExpressionKind
