@@ -175,6 +175,20 @@ struct Expression print(struct Environment *env, struct List *args)
     return booleanExpression(true);
 }
 
+struct Expression progn(struct Environment *env, struct List *args)
+{
+    checkArityAtLeastError(1, listLength(args));
+
+    while (true)
+    {
+        struct Expression expr = evaluate(env, args->car);
+        if (args->cdr == NULL) {
+            return expr;
+        }
+        args = args->cdr;
+    }
+}
+
 struct Expression quote(struct Environment *env, struct List *list)
 {
     return env == NULL ? list->car : list->car;

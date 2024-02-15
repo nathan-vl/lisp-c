@@ -15,6 +15,7 @@ struct Expression ifExpr(struct Environment *env, struct List *args);
 struct Expression include(struct Environment *env, struct List *args);
 struct Expression lambda(struct Environment *env, struct List *args);
 struct Expression print(struct Environment *env, struct List *args);
+struct Expression progn(struct Environment *env, struct List *args);
 struct Expression quote(struct Environment *env, struct List *list);
 struct Expression setValue(struct Environment *env, struct List *args);
 struct Expression whileExpr(struct Environment *env, struct List *args);

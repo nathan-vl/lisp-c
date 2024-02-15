@@ -50,6 +50,7 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "include", primitiveProcedureExpression(include));
     defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
     defineVariable(env, "print", primitiveProcedureExpression(print));
+    defineVariable(env, "progn", primitiveProcedureExpression(progn));
     defineVariable(env, "quote", primitiveProcedureExpression(quote));
     defineVariable(env, "set!", primitiveProcedureExpression(setValue));
     defineVariable(env, "while", primitiveProcedureExpression(whileExpr));
