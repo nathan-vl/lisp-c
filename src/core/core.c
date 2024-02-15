@@ -1,4 +1,5 @@
 #include "std.h"
+#include "utils.h"
 
 struct Expression cons(struct Environment *env, struct List *args)
 {
@@ -24,7 +25,7 @@ struct Expression define(struct Environment *env, struct List *args)
     }
 
     char *symbol = args->car.value.symbol;
-    struct Expression expression = args->cdr->car;
+    struct Expression expression = evaluate(env, args->cdr->car);
     if (getVariable(env, symbol) != NULL)
     {
         printf("Error. Variable is already defined.\n");
@@ -101,6 +102,45 @@ struct Expression ifExpr(struct Environment *env, struct List *args)
     }
 
     return evaluate(env, args->cdr->cdr->car);
+}
+
+struct Expression include(struct Environment *env, struct List *args)
+{
+    checkArityError(1, listLength(args));
+
+    if (args->car.kind != STRING)
+    {
+        printf("Error. Expected string for file path.\n");
+        exit(-1);
+    }
+
+    char *path = args->car.value.string;
+
+    char *fileContents = readFile(path);
+
+    struct ExpressionLinkedList *expressions = sourceToExpressions(fileContents);
+    struct Environment innerEnv = createEnvironment(NULL);
+    loadPrimitiveProcedures(&innerEnv);
+
+    while (expressions != NULL)
+    {
+        evaluate(&innerEnv, expressions->value);
+        expressions = expressions->next;
+    }
+
+    free(fileContents);
+
+    for (size_t i = 0; i < HASH_SIZE; i++)
+    {
+        struct VariableNode *current = innerEnv.nodes[i];
+        while (current != NULL)
+        {
+            defineVariable(env, current->key, current->value);
+            current = current->next;
+        }
+    }
+
+    return booleanExpression(true);
 }
 
 struct Expression lambda(struct Environment *env, struct List *args)

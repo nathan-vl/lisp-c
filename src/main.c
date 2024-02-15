@@ -3,6 +3,7 @@
 
 #include "eval.h"
 #include "std.h"
+#include "utils.h"
 
 void loadPrimitiveProcedures(struct Environment *env)
 {
@@ -10,6 +11,7 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "define", primitiveProcedureExpression(define));
     defineVariable(env, "defmacro", primitiveProcedureExpression(defmacro));
     defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
+    defineVariable(env, "include", primitiveProcedureExpression(include));
     defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
     defineVariable(env, "print", primitiveProcedureExpression(print));
     defineVariable(env, "quote", primitiveProcedureExpression(quote));
@@ -31,62 +33,6 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "/", primitiveProcedureExpression(divide));
     defineVariable(env, "pow", primitiveProcedureExpression(exponentiation));
     defineVariable(env, "%", primitiveProcedureExpression(modulo));
-}
-
-char *readFile(char *path)
-{
-    FILE *file = fopen(path, "rb");
-    if (file == NULL)
-    {
-        printf("Error. Could not open file \"%s\".\n", path);
-    }
-
-    fseek(file, 0L, SEEK_END);
-    size_t size = ftell(file);
-    rewind(file);
-
-    char *buffer = (char *)malloc(size + 1);
-    if (buffer == NULL)
-    {
-        printf("Error. Not enough memory to read file.");
-    }
-
-    size_t bytesRead = fread(buffer, sizeof(char), size, file);
-    if (bytesRead < size)
-    {
-        printf("Error. Could not read file \"%s\".\n", path);
-    }
-    buffer[size - 1] = '\0';
-
-    fclose(file);
-
-    return buffer;
-}
-
-struct ExpressionLinkedList *sourceToExpressions(char *source)
-{
-    struct ScannerStatus scannerStatus = parse(source);
-    if (scannerStatus.hasError)
-    {
-        return NULL;
-    }
-    struct TokenLinkedList *tokens = scannerStatus.tokensHead.next;
-
-    struct SyntaxAnalyserStatus syntaxStatus = syntaxAnalyser(tokens);
-    if (syntaxStatus.hasError)
-    {
-        return NULL;
-    }
-    struct ExpressionLinkedList *expressions = syntaxStatus.expressions;
-
-    while (tokens != NULL)
-    {
-        struct TokenLinkedList *current = tokens;
-        tokens = tokens->next;
-        free(current);
-    }
-
-    return expressions;
 }
 
 void interpreter()
