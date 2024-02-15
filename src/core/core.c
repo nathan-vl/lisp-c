@@ -205,13 +205,6 @@ struct Expression setValue(struct Environment *env, struct List *args)
     }
 
     char *symbol = args->car.value.symbol;
-
-    if (getVariable(env, symbol) == NULL)
-    {
-        printf("Error. Variable is not defined.\n");
-        exit(-1);
-    }
-
     defineVariable(env, symbol, evaluate(env, args->cdr->car));
 
     return booleanExpression(true);
