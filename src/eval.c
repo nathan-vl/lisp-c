@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expression.h"
 #include "environment.h"
 
 struct Expression evaluate(struct Environment *env, struct Expression expression);
@@ -26,7 +25,7 @@ void checkArityAtLeastError(size_t minimum, size_t actual)
     }
 }
 
-struct List *replace(struct Environment *env, struct Macro macro, struct List *args)
+struct List *replace(struct Environment *env, struct Macro macro)
 {
     struct List *body = macro.body;
 
@@ -36,8 +35,8 @@ struct List *replace(struct Environment *env, struct Macro macro, struct List *a
         if (current->car.kind == LIST)
         {
             struct Macro inner = macro;
-            inner.body = current->car.value.list;
-            current->car.value.list = replace(env, inner, args);
+            inner.body = evaluate(env, current->car).value.list;
+            current->car.value.list = replace(env, inner);
         }
         else if (current->car.kind == SYMBOL)
         {
@@ -65,7 +64,7 @@ struct Expression executeMacro(struct Environment *env, struct Macro macro, stru
         current = current->cdr;
     }
 
-    struct List *replacedBody = replace(&innerEnv, macro, args);
+    struct List *replacedBody = replace(&innerEnv, macro);
     return evaluate(env, listExpression(replacedBody));
 }
 
