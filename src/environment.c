@@ -49,6 +49,7 @@ void loadPrimitiveProcedures(struct Environment *env)
     defineVariable(env, "if", primitiveProcedureExpression(ifExpr));
     defineVariable(env, "include", primitiveProcedureExpression(include));
     defineVariable(env, "lambda", primitiveProcedureExpression(lambda));
+    defineVariable(env, "macroexpand", primitiveProcedureExpression(macroExpand));
     defineVariable(env, "print", primitiveProcedureExpression(print));
     defineVariable(env, "progn", primitiveProcedureExpression(progn));
     defineVariable(env, "quote", primitiveProcedureExpression(quote));

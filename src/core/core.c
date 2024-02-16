@@ -159,6 +159,40 @@ struct Expression lambda(struct Environment *env, struct List *args)
     return procedureExpression(procedure);
 }
 
+struct Expression macroExpand(struct Environment *env, struct List *args)
+{
+    checkArityError(1, listLength(args));
+
+    struct Expression macroCall = evaluate(env, args->car);
+
+    if (macroCall.kind != LIST)
+    {
+        printf("Error. Expected list for argument.\n");
+        exit(-1);
+    }
+
+    struct List *macroCallList = macroCall.value.list;
+
+    if (macroCallList == NULL)
+    {
+        printf("Error. List to macro expand is empty.\n");
+        exit(-1);
+    }
+
+    struct Expression macroExpr = evaluate(env, macroCallList->car);
+
+    if (macroExpr.kind != MACRO)
+    {
+        printf("Error. Expected macro to be expanded in list.\n");
+        exit(-1);
+    }
+
+    struct Macro macro = macroExpr.value.macro;
+    struct List *macroArgs = macroCallList->cdr;
+
+    return replaceMacro(env, macro, macroArgs);
+}
+
 struct Expression print(struct Environment *env, struct List *args)
 {
     struct Expression car = evaluate(env, args->car);

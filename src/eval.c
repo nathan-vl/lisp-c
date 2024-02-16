@@ -5,6 +5,7 @@
 
 #include "environment.h"
 #include "eval.h"
+#include "utils.h"
 
 struct Expression evaluate(struct Environment *env, struct Expression expression);
 
@@ -26,43 +27,9 @@ void checkArityAtLeastError(size_t minimum, size_t actual)
     }
 }
 
-struct Expression replace(struct Environment *env, struct Macro macro)
-{
-    struct Expression body = evaluate(env, *macro.body);
-    if (body.kind != LIST)
-    {
-        return body;
-    }
-
-    struct List *current = body.value.list;
-
-    while (current != NULL)
-    {
-        struct Macro inner = macro;
-        *inner.body = current->car;
-        current->car = replace(env, inner);
-        current = current->cdr;
-    }
-
-    return body;
-}
-
 struct Expression executeMacro(struct Environment *env, struct Macro macro, struct List *args)
 {
-    checkArityError(macro.parametersLength, listLength(args));
-
-    struct Environment innerEnv = createEnvironment(env);
-
-    struct List *current = args;
-    for (size_t i = 0; i < macro.parametersLength; i++)
-    {
-        char *parameter = macro.parameters[i];
-        defineVariable(&innerEnv, parameter, current->car);
-        current = current->cdr;
-    }
-
-    struct Expression replacedBody = replace(&innerEnv, macro);
-    return evaluate(env, replacedBody);
+    return evaluate(env, replaceMacro(env, macro, args));
 }
 
 struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct List *args)

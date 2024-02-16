@@ -37,6 +37,54 @@ char *readFile(char *path)
     return buffer;
 }
 
+struct Expression replaceMacroBody(struct Environment *env, struct Environment *macroArgs, struct Macro macro)
+{
+    if (macro.body->kind == SYMBOL)
+    {
+        struct Expression *macroArg = getVariable(macroArgs, macro.body->value.symbol);
+        if (macroArg != NULL)
+        {
+            return *macroArg;
+        }
+    }
+
+    struct Expression body = evaluate(env, *macro.body);
+    if (body.kind != LIST)
+    {
+        return body;
+    }
+
+    struct List *current = body.value.list;
+
+    while (current != NULL)
+    {
+        struct Macro inner = macro;
+        *inner.body = current->car;
+        current->car = replaceMacroBody(env, macroArgs, inner);
+        current = current->cdr;
+    }
+
+    return body;
+}
+
+struct Expression replaceMacro(struct Environment *env, struct Macro macro, struct List *args)
+{
+    checkArityError(macro.parametersLength, listLength(args));
+
+    struct Environment macroArgsEnv = createEnvironment(NULL);
+
+    struct List *current = args;
+    for (size_t i = 0; i < macro.parametersLength; i++)
+    {
+        char *parameter = macro.parameters[i];
+        defineVariable(&macroArgsEnv, parameter, current->car);
+        current = current->cdr;
+    }
+
+    struct Expression replacedBody = replaceMacroBody(env, &macroArgsEnv, macro);
+    return replacedBody;
+}
+
 void includeFile(struct Environment *environment, char *path)
 {
     char *fileContents = readFile(path);
