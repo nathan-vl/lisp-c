@@ -7,7 +7,7 @@ struct Macro
 {
     char **parameters;
     size_t parametersLength;
-    struct List *body;
+    struct Expression *body;
 };
 
 struct Procedure

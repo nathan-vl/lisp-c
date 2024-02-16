@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "environment.h"
+#include "eval.h"
 
 struct Expression evaluate(struct Environment *env, struct Expression expression);
 
@@ -25,25 +26,21 @@ void checkArityAtLeastError(size_t minimum, size_t actual)
     }
 }
 
-struct List *replace(struct Environment *env, struct Macro macro)
+struct Expression replace(struct Environment *env, struct Macro macro)
 {
-    struct List *body = macro.body;
+    struct Expression body = evaluate(env, *macro.body);
+    if (body.kind != LIST)
+    {
+        return body;
+    }
 
-    struct List *current = body;
+    struct List *current = body.value.list;
+
     while (current != NULL)
     {
-        if (current->car.kind == LIST)
-        {
-            struct Macro inner = macro;
-            inner.body = evaluate(env, current->car).value.list;
-            current->car.value.list = replace(env, inner);
-        }
-        else if (current->car.kind == SYMBOL)
-        {
-            struct Expression expr = evaluate(env, current->car);
-            current->car = expr;
-        }
-
+        struct Macro inner = macro;
+        *inner.body = current->car;
+        current->car = replace(env, inner);
         current = current->cdr;
     }
 
@@ -64,8 +61,8 @@ struct Expression executeMacro(struct Environment *env, struct Macro macro, stru
         current = current->cdr;
     }
 
-    struct List *replacedBody = replace(&innerEnv, macro);
-    return evaluate(env, listExpression(replacedBody));
+    struct Expression replacedBody = replace(&innerEnv, macro);
+    return evaluate(env, replacedBody);
 }
 
 struct Expression executeProcedure(struct Environment *env, struct Procedure procedure, struct List *args)

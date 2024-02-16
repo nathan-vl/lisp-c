@@ -81,7 +81,8 @@ struct Expression defmacro(struct Environment *env, struct List *args)
     struct Macro macro;
     macro.parameters = parameters;
     macro.parametersLength = parametersLength;
-    macro.body = evaluate(env, args->cdr->cdr->car).value.list;
+    macro.body = malloc(sizeof(struct Expression));
+    *macro.body = args->cdr->cdr->car;
 
     struct Expression expr;
     expr.kind = MACRO;
@@ -182,7 +183,8 @@ struct Expression progn(struct Environment *env, struct List *args)
     while (true)
     {
         struct Expression expr = evaluate(env, args->car);
-        if (args->cdr == NULL) {
+        if (args->cdr == NULL)
+        {
             return expr;
         }
         args = args->cdr;
