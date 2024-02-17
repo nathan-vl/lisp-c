@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "expression.h"
 
@@ -33,6 +34,15 @@ struct Expression listExpression(struct List *list)
     struct Expression expression;
     expression.kind = LIST;
     expression.value.list = list;
+    return expression;
+}
+
+struct Expression macroExpression(struct Macro macro)
+{
+    struct Expression expression;
+    expression.kind = MACRO;
+    expression.value.macro = malloc(sizeof(struct Macro));
+    *expression.value.macro = macro;
     return expression;
 }
 
@@ -90,6 +100,25 @@ void printExpression(struct Expression *expression);
 
 void printList(struct List *list)
 {
+    if (list != NULL && list->car.kind == SYMBOL && (strcmp(list->car.value.symbol, "quote") == 0))
+    {
+        printf("'");
+        list = list->cdr;
+        if (list != NULL)
+        {
+            printExpression(&list->car);
+            list = list->cdr;
+        }
+
+        while (list != NULL)
+        {
+            printf(" ");
+            printExpression(&list->car);
+            list = list->cdr;
+        }
+        return;
+    }
+
     printf("(");
     if (list != NULL)
     {

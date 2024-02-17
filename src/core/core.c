@@ -81,14 +81,9 @@ struct Expression defmacro(struct Environment *env, struct List *args)
     struct Macro macro;
     macro.parameters = parameters;
     macro.parametersLength = parametersLength;
-    macro.body = malloc(sizeof(struct Expression));
-    *macro.body = args->cdr->cdr->car;
+    macro.body = args->cdr->cdr->car;
 
-    struct Expression expr;
-    expr.kind = MACRO;
-    expr.value.macro = macro;
-
-    defineVariable(env, macroName, expr);
+    defineVariable(env, macroName, macroExpression(macro));
 
     return booleanExpression(true);
 }
@@ -187,7 +182,7 @@ struct Expression macroExpand(struct Environment *env, struct List *args)
         exit(-1);
     }
 
-    struct Macro macro = macroExpr.value.macro;
+    struct Macro macro = *macroExpr.value.macro;
     struct List *macroArgs = macroCallList->cdr;
 
     return replaceMacro(env, macro, macroArgs);

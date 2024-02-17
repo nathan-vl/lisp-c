@@ -63,7 +63,7 @@ struct Expression evaluateList(struct Environment *env, struct List *list)
     switch (expression.kind)
     {
     case MACRO:
-        struct Macro macro = expression.value.macro;
+        struct Macro macro = *expression.value.macro;
         return executeMacro(env, macro, list->cdr);
     case PRIMITIVE_PROCEDURE:
         struct Expression (*primitiveProcedure)(struct Environment *env, struct List *args) = expression.value.primitiveProcedure;

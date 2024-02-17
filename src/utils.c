@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h"
 
 #include "environment.h"
 #include "eval.h"
@@ -37,18 +38,18 @@ char *readFile(char *path)
     return buffer;
 }
 
-struct Expression replaceMacroBody(struct Environment *env, struct Environment *macroArgs, struct Macro macro)
+struct Expression replaceMacroBody(struct Environment *env, struct Environment *macroArgs, struct Expression macroBody)
 {
-    if (macro.body->kind == SYMBOL)
+    if (macroBody.kind == SYMBOL)
     {
-        struct Expression *macroArg = getVariable(macroArgs, macro.body->value.symbol);
+        struct Expression *macroArg = getVariable(macroArgs, macroBody.value.symbol);
         if (macroArg != NULL)
         {
             return *macroArg;
         }
     }
 
-    struct Expression body = evaluate(env, *macro.body);
+    struct Expression body = evaluate(env, macroBody);
     if (body.kind != LIST)
     {
         return body;
@@ -58,13 +59,55 @@ struct Expression replaceMacroBody(struct Environment *env, struct Environment *
 
     while (current != NULL)
     {
-        struct Macro inner = macro;
-        *inner.body = current->car;
-        current->car = replaceMacroBody(env, macroArgs, inner);
+        current->car = replaceMacroBody(env, macroArgs, current->car);
         current = current->cdr;
     }
 
     return body;
+}
+
+struct List *deepCopyList(const struct List *list)
+{
+    if (list == NULL)
+    {
+        return NULL;
+    }
+
+    struct List *copy = malloc(sizeof(struct List));
+    copy->car = deepCopy(&list->car);
+    copy->cdr = deepCopyList(list->cdr);
+
+    return copy;
+}
+
+char *copyString(const char *string)
+{
+    size_t len = strlen(string);
+    char *copy = malloc(sizeof(char) * len + 1);
+    strcpy(copy, string);
+    copy[len] = '\0';
+    return copy;
+}
+
+struct Expression deepCopy(const struct Expression *expression)
+{
+    // Procedures and other types found to be not required to make deep copies
+
+    switch (expression->kind)
+    {
+    case LIST:
+        return listExpression(deepCopyList(expression->value.list));
+    case MACRO:
+        struct Macro macro;
+        macro.body = deepCopy(&expression->value.macro->body);
+        return macroExpression(macro);
+    case SYMBOL:
+        return symbolExpression(copyString(expression->value.symbol));
+    case STRING:
+        return symbolExpression(copyString(expression->value.string));
+    default:
+        return *expression;
+    }
 }
 
 struct Expression replaceMacro(struct Environment *env, struct Macro macro, struct List *args)
@@ -81,7 +124,9 @@ struct Expression replaceMacro(struct Environment *env, struct Macro macro, stru
         current = current->cdr;
     }
 
-    struct Expression replacedBody = replaceMacroBody(env, &macroArgsEnv, macro);
+    struct Expression macroBody = deepCopy(&macro.body);
+    struct Expression replacedBody = replaceMacroBody(env, &macroArgsEnv, macroBody);
+
     return replacedBody;
 }
 

@@ -3,13 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-struct Macro
-{
-    char **parameters;
-    size_t parametersLength;
-    struct Expression *body;
-};
-
 struct Procedure
 {
     char **parameters;
@@ -21,13 +14,13 @@ enum ExpressionKind
 {
     BOOLEAN,
     CHARACTER,
-    SYMBOL,
     LIST,
-    NUMBER,
     MACRO,
+    NUMBER,
     PRIMITIVE_PROCEDURE,
     PROCEDURE,
     STRING,
+    SYMBOL,
 };
 
 union ExpressionValue
@@ -36,7 +29,7 @@ union ExpressionValue
     char character;
     char *symbol;
     struct List *list;
-    struct Macro macro;
+    struct Macro *macro;
     double number;
     void *primitiveProcedure; // Points to function type : Expression procedure(Environment*, List*)
     struct Procedure procedure;
@@ -55,10 +48,18 @@ struct List
     struct List *cdr;
 };
 
+struct Macro
+{
+    char **parameters;
+    size_t parametersLength;
+    struct Expression body;
+};
+
 struct Expression booleanExpression(bool boolean);
 struct Expression characterExpression(char character);
 struct Expression symbolExpression(char *symbol);
 struct Expression listExpression(struct List *list);
+struct Expression macroExpression(struct Macro macro);
 struct Expression numberExpression(double number);
 struct Expression procedureExpression(struct Procedure procedure);
 struct Expression stringExpression(char *string);
