@@ -1,5 +1,5 @@
 #include "std.h"
-#include "math.h"
+#include <math.h>
 
 double getNumber(struct Environment *env, struct Expression *expression)
 {

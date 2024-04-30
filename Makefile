@@ -1,8 +1,8 @@
-C = gcc
-INCLUDES = -I include \
-	-I src/parser \
-	-I src/scanner \
-	-I src/std
+CC = gcc
+INCLUDES = -Iinclude \
+	-Isrc/parser \
+	-Isrc/scanner \
+	-Isrc/std
 CFLAGS = $(INCLUDES) --std=c11 -lm
 DEBUG_FLAGS = -g -O0 -Wall -Wextra -save-temps -Wshadow -Wfloat-equal -Wundef -fsanitize=address
 RELEASE_FLAGS = -O3
@@ -14,7 +14,7 @@ SOURCES = $(shell find . -name "*.c")
 
 $(OUT_OBJ):
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) $(RELEASE_FLAGS) $(SOURCES) -o $(BUILD)/$@
+	$(CC) $(RELEASE_FLAGS) $(SOURCES) -o $(BUILD)/$@ $(CFLAGS)
 debug:
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) $(DEBUG_FLAGS) $(SOURCES) -o $(BUILD)/$@
+	$(CC) $(DEBUG_FLAGS) $(SOURCES) -o $(BUILD)/$@ $(CFLAGS)
